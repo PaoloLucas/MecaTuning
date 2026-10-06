@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MecaTuning & Diagnostics | Reprogramación Online</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0f1115;
+            --bg-light: #1c1f26;
+            --text-main: #f0f0f0;
+            --text-muted: #a0a5b1;
+            --accent-blue: #00e5ff;
+            --accent-red: #e6193c;
+            --success-green: #00e676;
+            --font-main: 'Montserrat', sans-serif;
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-main); background-color: var(--bg-dark); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
+        
+        /* Header & Navigation */
+        header { position: fixed; top: 0; width: 100%; background-color: rgba(15, 17, 21, 0.95); backdrop-filter: blur(10px); z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .nav-container { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; cursor: pointer; }
+        .logo span.meca { color: var(--text-main); }
+        .logo span.tuning { color: var(--accent-red); }
+        .logo span.dot { color: var(--accent-blue); }
+        nav ul { list-style: none; display: flex; gap: 2rem; }
+        nav a { color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; transition: var(--transition); cursor: pointer; }
+        nav a:hover, nav a.active { color: var(--accent-blue); }
+        .cart-icon { position: relative; cursor: pointer; font-size: 1.2rem; transition: var(--transition); }
+        .cart-icon:hover { color: var(--accent-blue); }
+        .cart-count { position: absolute; top: -8px; right: -10px; background-color: var(--accent-red); color: white; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 50%; transition: var(--transition); }
+        .mobile-menu-btn { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+        
+        main { margin-top: 100px; min-height: calc(100vh - 100px - 200px); }
+        .page-section { display: none; animation: fadeIn 0.5s ease; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 4rem 2rem; }
+        .section-title { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 2px; }
+        .section-title span { color: var(--accent-red); }
+
+        .btn { display: inline-block; padding: 1rem 2.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; cursor: pointer; transition: var(--transition); border: none; text-decoration: none; }
+        .btn-primary { background-color: var(--accent-red); color: white; box-shadow: 0 4px 15px rgba(230, 25, 60, 0.3); }
+        .btn-primary:hover { background-color: #c41533; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230, 25, 60, 0.4); }
+        .btn-success { background-color: var(--success-green); color: #000; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3); }
+        .btn-success:hover { background-color: #00c853; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 230, 118, 0.4); }
+        .btn-outline { background-color: transparent; color: var(--accent-blue); border: 2px solid var(--accent-blue); }
+        .btn-outline:hover { background-color: var(--accent-blue); color: var(--bg-dark); }
+
+        /* Trust Badges & Marketing */
+        .trust-banner { background-color: var(--bg-light); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.8rem 1rem; position: fixed; top: 0; width: 100%; z-index: 1001;}
+        .trust-grid { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 1rem; max-width: 1200px; margin: 0 auto; }
+        .trust-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+        .trust-item i { color: var(--success-green); font-size: 1.1rem; }
+
+        /* HERO */
+        .hero { height: 80vh; display: flex; align-items: center; justify-content: center; text-align: center; background: linear-gradient(rgba(15, 17, 21, 0.85), rgba(15, 17, 21, 0.98)), url('https://images.unsplash.com/photo-1549646849-c189b0de3181?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover; padding: 0 2rem; margin-top: -20px; }
+        .hero h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 1.5rem; line-height: 1.2; }
+        .hero h1 span { background: linear-gradient(45deg, var(--accent-blue), var(--accent-red)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.2rem; color: var(--text-main); max-width: 800px; margin: 0 auto 2.5rem; }
+        .hero-marketing { font-weight: 700; color: var(--success-green); margin-bottom: 1rem; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;}
+        
+        /* How it works */
+        .how-it-works { background-color: var(--bg-light); }
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; margin-bottom: 4rem; }
+        .step-card { background-color: var(--bg-dark); padding: 2.5rem 2rem; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.05); transition: var(--transition); }
+        .step-card:hover { transform: translateY(-10px); border-color: var(--accent-blue); box-shadow: 0 10px 30px rgba(0, 229, 255, 0.05); }
+        .step-icon { font-size: 3rem; color: var(--accent-blue); margin-bottom: 1.5rem; }
+        .step-card h3 { font-size: 1.2rem; margin-bottom: 1rem; }
+        .step-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* Anti-Brick & ROI Box */
+        .marketing-boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; }
+        .marketing-box { padding: 3rem; border-radius: 12px; text-align: left; position: relative; overflow: hidden;}
+        .anti-brick { background: linear-gradient(135deg, rgba(230,25,60,0.1) 0%, rgba(15,17,21,1) 100%); border: 1px solid rgba(230, 25, 60, 0.3); }
+        .anti-brick h3 { color: var(--accent-red); margin-bottom: 1rem; font-size: 1.5rem;}
+        .roi-box { background: linear-gradient(135deg, rgba(0,229,255,0.1) 0%, rgba(15,17,21,1) 100%); border: 1px solid rgba(0, 229, 255, 0.3); }
+        .roi-box h3 { color: var(--accent-blue); margin-bottom: 1rem; font-size: 1.5rem;}
+        .marketing-box p { color: var(--text-muted); }
+
+        /* Testimonials */
+        .testimonials { padding-top: 0; }
+        .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .testi-card { background-color: var(--bg-light); padding: 2rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .stars { color: #ffd700; margin-bottom: 1rem; font-size: 0.9rem;}
+        .testi-card p { font-style: italic; color: var(--text-muted); margin-bottom: 1rem; }
+        .testi-author { font-weight: 700; font-size: 0.9rem; color: var(--accent-blue); }
+
+        /* SHOP PAGE */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+        .product-card { background-color: var(--bg-light); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); transition: var(--transition); display: flex; flex-direction: column; position: relative;}
+        .product-card:hover { border-color: var(--accent-red); box-shadow: 0 10px 30px rgba(230, 25, 60, 0.1); transform: translateY(-5px); }
+        
+        .badge { position: absolute; top: 15px; right: 15px; padding: 5px 12px; font-size: 0.75rem; font-weight: 800; border-radius: 20px; z-index: 10; text-transform: uppercase; letter-spacing: 1px;}
+        .badge-popular { background-color: var(--accent-red); color: white; }
+        .badge-eco { background-color: var(--success-green); color: #000; }
+
+        .product-img { height: 200px; background-color: #252830; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: var(--bg-dark); position: relative; }
+        .product-img::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.03)); }
+        .product-info { padding: 2rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .product-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .product-desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; flex-grow: 1; }
+        
+        .pricing-wrap { margin-bottom: 1.5rem; display: flex; align-items: flex-end; gap: 10px; }
+        .price-old { text-decoration: line-through; color: var(--text-muted); font-size: 1rem; margin-bottom: 4px; }
+        .product-price { font-size: 1.8rem; font-weight: 800; color: var(--accent-blue); line-height: 1; }
+
+        .product-card .btn { width: 100%; text-align: center; font-size: 0.9rem; padding: 1rem; }
+        .finance-text { text-align: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.8rem; }
+
+        /* CART PAGE */
+        .cart-container { background-color: var(--bg-light); border-radius: 12px; padding: 3rem; border: 1px solid rgba(255,255,255,0.05); }
+        .cart-table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+        .cart-table th { text-align: left; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem;}
+        .cart-table td { padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+        .cart-item-name { font-weight: 700; font-size: 1.1rem; color: var(--text-main); }
+        .cart-item-desc { font-size: 0.85rem; color: var(--text-muted); }
+        .cart-item-price { font-weight: 700; color: var(--accent-blue); font-size: 1.1rem;}
+        .cart-remove { color: var(--accent-red); cursor: pointer; background: none; border: none; font-size: 1.2rem; transition: var(--transition); }
+        .cart-remove:hover { color: #ff4d6d; transform: scale(1.1); }
+        
+        .cart-summary { background-color: var(--bg-dark); padding: 2rem; border-radius: 8px; text-align: right; border: 1px solid rgba(255,255,255,0.05); }
+        .summary-row { display: flex; justify-content: flex-end; gap: 2rem; margin-bottom: 1rem; font-size: 1.1rem;}
+        .summary-total { display: flex; justify-content: flex-end; gap: 2rem; margin-bottom: 2rem; font-size: 1.8rem; font-weight: 800; color: var(--accent-blue); border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;}
+        
+        .empty-cart-msg { text-align: center; padding: 4rem 0; color: var(--text-muted); }
+        .empty-cart-msg i { font-size: 4rem; margin-bottom: 1rem; color: rgba(255,255,255,0.1); }
+
+        /* Checkout Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,17,21,0.9); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-content { background-color: var(--bg-light); padding: 3rem; border-radius: 12px; max-width: 500px; width: 90%; text-align: center; border: 1px solid var(--accent-blue); box-shadow: 0 0 40px rgba(0, 229, 255, 0.1); animation: fadeIn 0.3s ease;}
+        .modal-icon { font-size: 4rem; color: var(--success-green); margin-bottom: 1.5rem; }
+        .modal-content h3 { font-size: 1.8rem; margin-bottom: 1rem; }
+        .modal-content p { color: var(--text-muted); margin-bottom: 2rem; }
+
+        /* ABOUT & CONTACT */
+        .about-content { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+        .about-text h3 { font-size: 2rem; margin-bottom: 1.5rem; color: var(--accent-blue); }
+        .about-text p { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 1.05rem; }
+        .ceo-highlight { border-left: 4px solid var(--accent-red); padding-left: 1.5rem; margin: 2rem 0; background: linear-gradient(90deg, rgba(230,25,60,0.05) 0%, transparent 100%); padding: 1.5rem; border-radius: 0 8px 8px 0;}
+        .about-image { background-color: var(--bg-light); border-radius: 12px; padding: 3rem; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .about-image i { font-size: 8rem; color: var(--bg-dark); text-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+        .company-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 3rem; background-color: var(--bg-light); padding: 2rem; border-radius: 12px; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: 800; color: var(--accent-blue); }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+        .contact-info { background-color: var(--bg-light); padding: 3rem; border-radius: 12px; }
+        .info-item { display: flex; align-items: flex-start; gap: 1.5rem; margin-bottom: 2rem; }
+        .info-icon { font-size: 1.5rem; color: var(--accent-red); background: rgba(230, 25, 60, 0.1); width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .info-text h4 { margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .info-text p { color: var(--text-muted); font-size: 0.95rem; }
+        .contact-form { background-color: var(--bg-light); padding: 3rem; border-radius: 12px; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
+        .form-control { width: 100%; padding: 1rem; background-color: var(--bg-dark); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: var(--text-main); font-family: var(--font-main); transition: var(--transition); }
+        .form-control:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2); }
+        textarea.form-control { resize: vertical; min-height: 120px; }
+
+        footer { background-color: var(--bg-dark); border-top: 1px solid rgba(255,255,255,0.05); padding: 3rem 2rem; text-align: center; }
+        .footer-logo { font-size: 1.2rem; font-weight: 800; margin-bottom: 1rem; }
+        .footer-logo span.tuning { color: var(--accent-red); }
+        .footer-text { color: var(--text-muted); font-size: 0.9rem; max-width: 600px; margin: 0 auto; }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero h1 { font-size: 2.8rem; }
+            .marketing-boxes, .about-content, .contact-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            header { top: 38px !important; }
+            .nav-container { padding: 1rem; }
+            .mobile-menu-btn { display: block; }
+            nav ul { position: absolute; top: 100%; left: 0; width: 100%; background-color: rgba(15, 17, 21, 0.98); flex-direction: column; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: none; }
+            nav ul.show { display: flex; }
+            nav ul li a { display: block; padding: 1.5rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
+            .hero h1 { font-size: 2rem; }
+            .section-title { font-size: 2rem; }
+            .company-stats { grid-template-columns: 1fr; }
+            .trust-item { font-size: 0.75rem; }
+            .summary-row, .summary-total { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Trust Banner -->
+    <div class="trust-banner" id="trustBanner">
+        <div class="trust-grid">
+            <div class="trust-item"><i class="fas fa-check-circle"></i> Garantía de Devolución 30 Días</div>
+            <div class="trust-item"><i class="fas fa-truck"></i> Envío Gratis a toda Europa</div>
+            <div class="trust-item"><i class="fas fa-lock"></i> Pago 100% Seguro</div>
+        </div>
+    </div>
+
+    <!-- Header & Nav -->
+    <header id="mainHeader">
+        <div class="nav-container">
+            <div class="logo" onclick="navigate('home')">
+                <span class="meca">Meca</span><span class="tuning">Tuning</span><span class="dot">.</span>
+            </div>
+            
+            <nav>
+                <button class="mobile-menu-btn" onclick="toggleMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul id="nav-links">
+                    <li><a onclick="navigate('home')" class="nav-link active" data-target="home">Inicio</a></li>
+                    <li><a onclick="navigate('shop')" class="nav-link" data-target="shop">Tienda</a></li>
+                    <li><a onclick="navigate('about')" class="nav-link" data-target="about">Nosotros</a></li>
+                    <li><a onclick="navigate('contact')" class="nav-link" data-target="contact">Contacto</a></li>
+                </ul>
+            </nav>
+            
+            <div class="cart-icon" onclick="navigate('cart')">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cart-counter">0</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- HOME SECTION -->
+        <section id="home" class="page-section active">
+            <div class="hero">
+                <div>
+                    <div class="hero-marketing"><i class="fas fa-star"></i> Más de 500 clientes satisfechos</div>
+                    <h1>El rendimiento de tu motor,<br><span>optimizado desde la nube.</span></h1>
+                    <p>Desata la potencia oculta de tu coche o reduce el consumo hasta un 15% sin pisar un taller mecánico. Con nuestro sistema "Flash-at-Home", la mejor ingeniería se instala en tu garaje.</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="navigate('shop')">Ver Planes y Precios</button>
+                        <button class="btn btn-outline" onclick="navigate('about')">Conoce cómo lo hacemos</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="how-it-works container">
+                <h2 class="section-title">Tu Coche. Tu Garaje. <span>Nuestra Ingeniería.</span></h2>
+                <p style="text-align: center; color: var(--text-muted); max-width: 700px; margin: 0 auto 3rem;">Olvídate de dejar el coche inmovilizado días enteros. Hazlo tú mismo en 4 sencillos pasos con asistencia de nuestros ingenieros a tiempo real.</p>
+                
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <i class="fas fa-microchip step-icon"></i>
+                        <h3>1. Compra el MecaNode</h3>
+                        <p>Recibe tu dispositivo hardware OBD en casa en 24/48h. Sin gastos de envío.</p>
+                    </div>
+                    <div class="step-card">
+                        <i class="fab fa-bluetooth-b step-icon"></i>
+                        <h3>2. Lee tu ECU</h3>
+                        <p>Conecta el nodo a tu coche. La app extrae el mapa original de fábrica vía Bluetooth.</p>
+                    </div>
+                    <div class="step-card">
+                        <i class="fas fa-cloud-upload-alt step-icon"></i>
+                        <h3>3. MecaCloud Engine</h3>
+                        <p>Sube el archivo a la nube. Nuestros ingenieros calibran los parámetros a medida en 1 hora.</p>
+                    </div>
+                    <div class="step-card">
+                        <i class="fas fa-bolt step-icon"></i>
+                        <h3>4. Flashea en 5 min</h3>
+                        <p>Descarga tu nuevo mapa, dale al botón "Escribir" y estrena coche al instante.</p>
+                    </div>
+                </div>
+
+                <div class="marketing-boxes">
+                    <div class="marketing-box roi-box">
+                        <h3><i class="fas fa-piggy-bank"></i> Una inversión que se paga sola</h3>
+                        <p>¿Te duelen los precios del combustible? Con el mapa <strong>MecaEco</strong>, un conductor promedio que hace 15.000 km al año ahorra unos <strong>350€ anuales</strong>. El sistema MecaTuning se amortiza en menos de 6 meses. A partir de ahí, todo es ahorro puro para tu bolsillo.</p>
+                    </div>
+                    <div class="marketing-box anti-brick">
+                        <h3><i class="fas fa-shield-alt"></i> Sistema Anti-Brick. Cero Riesgo.</h3>
+                        <p>La reprogramación asusta si no hay seguridad. Nuestro MecaNode cuenta con una <strong>Rescue ROM</strong> nativa. Si se corta el Bluetooth o falla tu batería a mitad de proceso, el módulo auto-restaura el mapa original del coche automáticamente.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonials container" style="border-top: 1px solid rgba(255,255,255,0.05); margin-top: -2rem;">
+                <h2 class="section-title">Lo que dicen <span>Nuestros Clientes</span></h2>
+                <div class="testi-grid">
+                    <div class="testi-card">
+                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                        <p>"Al principio dudaba por el precio, pero mi León TDI gastaba 6L/100km y ahora no pasa de 5.1L. En menos de un año habré recuperado el dinero. Y lo hice en el parking de casa en 10 minutos."</p>
+                        <div class="testi-author">— Alejandro G. (Seat León 2.0 TDI)</div>
+                    </div>
+                    <div class="testi-card">
+                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                        <p>"Brutal. El Stage 1 en mi Golf GTI ha despertado a una bestia. Tuve una duda durante la lectura y el ingeniero Pablo me respondió por email al momento. El MecaNode vale cada céntimo."</p>
+                        <div class="testi-author">— Marcos V. (VW Golf GTI MK7)</div>
+                    </div>
+                    <div class="testi-card">
+                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+                        <p>"Muy profesional. Tienen sede en Estonia pero me enviaron el hardware desde Zaragoza en 24h. Cero problemas al flashear y el coche va muchísimo más suelto. El sistema Anti-brick dio mucha paz mental."</p>
+                        <div class="testi-author">— Laura M. (BMW 118d)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SHOP SECTION -->
+        <section id="shop" class="page-section">
+            <div class="container">
+                <h2 class="section-title">Configura tu <span>Upgrade</span></h2>
+                <p style="text-align: center; color: var(--text-muted); max-width: 600px; margin: 0 auto 3rem;">Recuerda: Necesitas obligatoriamente el <strong>MecaNode (Hardware)</strong> + un <strong>Mapa (Software)</strong> para completar el proceso.</p>
+                
+                <div class="products-grid">
+                    <!-- Product 1 -->
+                    <div class="product-card">
+                        <div class="badge badge-popular">Indispensable</div>
+                        <div class="product-img">
+                            <i class="fas fa-hdd"></i>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">MecaNode OBD (Hardware)</h3>
+                            <p class="product-desc">Interfaz de diagnóstico y flasheo. Bluetooth 5.0, procesador ARM Cortex y sistema Rescue ROM Anti-brick. Te lo quedas para siempre y sirve para leer códigos de error.</p>
+                            <div class="pricing-wrap">
+                                <div class="product-price">149,00 €</div>
+                            </div>
+                            <button class="btn btn-primary" onclick="addToCart('MecaNode OBD', 149, 'hw')">Añadir MecaNode</button>
+                            <div class="finance-text">Fináncialo con Klarna en 3 meses</div>
+                        </div>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="product-card">
+                        <div class="badge badge-eco">Amortizable</div>
+                        <div class="product-img">
+                            <i class="fas fa-leaf" style="color: rgba(0, 229, 255, 0.5)"></i>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">MecaEco Map (Software)</h3>
+                            <p class="product-desc">Para 'Daily Drivers'. Optimización estequiométrica en cargas parciales y avance de inyección. Ahorra hasta un 15% de combustible.</p>
+                            <div class="pricing-wrap">
+                                <div class="price-old">249,00 €</div>
+                                <div class="product-price">199,00 €</div>
+                            </div>
+                            <button class="btn btn-outline" onclick="addToCart('MecaEco Map', 199, 'sw')">Seleccionar Mapa Eco</button>
+                            <div class="finance-text">Recupera la inversión en meses</div>
+                        </div>
+                    </div>
+
+                    <!-- Product 3 -->
+                    <div class="product-card">
+                        <div class="badge badge-popular">Bestseller</div>
+                        <div class="product-img">
+                            <i class="fas fa-tachometer-alt" style="color: rgba(230, 25, 60, 0.5)"></i>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">MecaSport Stage 1 (Software)</h3>
+                            <p class="product-desc">Máximo rendimiento seguro con piezas de serie. +20% a +35% de potencia y par. Deslimitación de velocidad punta (V-Max off).</p>
+                            <div class="pricing-wrap">
+                                <div class="price-old">299,00 €</div>
+                                <div class="product-price">249,00 €</div>
+                            </div>
+                            <button class="btn btn-outline" onclick="addToCart('MecaSport Stage 1', 249, 'sw')">Seleccionar Stage 1</button>
+                            <div class="finance-text">El salto de potencia más rentable</div>
+                        </div>
+                    </div>
+
+                    <!-- Product 4 -->
+                    <div class="product-card">
+                        <div class="product-img">
+                            <i class="fas fa-fire" style="color: var(--accent-red)"></i>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">MecaSport Stage 2 (Software)</h3>
+                            <p class="product-desc">Calibración extrema para hardware modificado (downpipe, admisión, intercooler). Incluye Pops & Bangs y Hard Cut Limiter opcionales.</p>
+                            <div class="pricing-wrap">
+                                <div class="product-price">299,00 €</div>
+                            </div>
+                            <button class="btn btn-outline" onclick="addToCart('MecaSport Stage 2', 299, 'sw')">Seleccionar Stage 2</button>
+                            <div class="finance-text">Solo para entusiastas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CART SECTION -->
+        <section id="cart" class="page-section">
+            <div class="container">
+                <h2 class="section-title">Tu <span>Carrito</span></h2>
+                
+                <div class="cart-container" id="cart-content">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT SECTION -->
+        <section id="about" class="page-section">
+            <div class="container">
+                <h2 class="section-title">Nuestra <span>Historia</span></h2>
+                
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3>Ingeniería al servicio del motor</h3>
+                        <p><strong>MecaTuning & Diagnostics</strong> nace de la sinergia perfecta entre la Ingeniería Mecatrónica y la Organización Industrial. Queríamos acabar con el monopolio de los talleres tradicionales que cobran precios desorbitados por un proceso que puede digitalizarse.</p>
+                        
+                        <div class="ceo-highlight">
+                            <p><em>"Fundé MecaTuning para romper las barreras del chiptuning. Llevamos la calibración a nivel de motorsport directamente a tu garaje combinando nuestro hardware propietario y la tecnología MecaCloud."</em></p>
+                            <p style="color: var(--accent-blue); font-weight: 600; margin-bottom: 0; margin-top: 10px;">— Pablo Malo</p>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">CEO & Fundador | EUPLA</p>
+                        </div>
+                        
+                        <p>Radicados fiscalmente en <strong>Tallin, Estonia</strong> (Lõõtsa tn 2a, 11415), aprovechamos la infraestructura digital y fiscal europea para mantener precios competitivos. Sin embargo, nuestro cerebro operativo de ingeniería, testeo y envíos se encuentra en pleno <strong>Polígono Plaza, Zaragoza, España</strong>.</p>
+                    </div>
+                    
+                    <div class="about-image">
+                        <i class="fas fa-server"></i>
+                        <h3 style="margin-top: 2rem;">MecaCloud Infrastructure</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 1rem;">Algoritmos de análisis estequiométrico operando 24/7 para procesar los mapas de tu ECU.</p>
+                    </div>
+                </div>
+
+                <div class="company-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">100%</div>
+                        <div class="stat-label">Autonomía del Usuario</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">30 Días</div>
+                        <div class="stat-label">Garantía de Devolución</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">1 Hora</div>
+                        <div class="stat-label">Tiempo medio de Calibración</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT SECTION -->
+        <section id="contact" class="page-section">
+            <div class="container">
+                <h2 class="section-title">Soporte <span>Técnico</span></h2>
+                
+                <div class="contact-grid">
+                    <div class="contact-info">
+                        <h3 style="margin-bottom: 1rem; font-size: 1.5rem;">Ingenieros a tu disposición</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">No somos simples comerciales. Nuestro equipo analiza logs y telemetría para asegurar que tu motor opera en rangos seguros.</p>
+                        
+                        <div class="info-item">
+                            <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                            <div class="info-text">
+                                <h4>Email Directo al CEO / Soporte</h4>
+                                <p>ceo@mecatuning.com</p>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-icon"><i class="fas fa-building"></i></div>
+                            <div class="info-text">
+                                <h4>Sede Fiscal Europea</h4>
+                                <p>MecaTuning & Diagnostics OÜ<br>Lõõtsa tn 2a, 11415, Tallin, Estonia</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-icon"><i class="fas fa-warehouse"></i></div>
+                            <div class="info-text">
+                                <h4>Hub de Operaciones y Logística</h4>
+                                <p>Polígono Plaza, Zaragoza, España</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-form">
+                        <h3 style="margin-bottom: 2rem; font-size: 1.5rem;">Consulta Compatibilidad</h3>
+                        <form id="contactForm" onsubmit="submitContactForm(event)">
+                            <div class="form-group">
+                                <label for="name">Nombre Completo</label>
+                                <input type="text" id="name" class="form-control" required placeholder="Ej: Carlos Sainz">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Correo Electrónico</label>
+                                <input type="email" id="email" class="form-control" required placeholder="tu@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicle">Vehículo (Marca, Modelo, Motor, Año)</label>
+                                <input type="text" id="vehicle" class="form-control" required placeholder="Ej: BMW 320d F30 2015">
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Mensaje</label>
+                                <textarea id="message" class="form-control" required placeholder="¿Quieres saber cuánta potencia puedes ganar?"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Enviar Consulta</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-logo">Meca<span>Tuning</span> & Diagnostics OÜ</div>
+        <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem; color: var(--text-muted); font-size: 1.2rem;">
+            <i class="fab fa-cc-visa"></i>
+            <i class="fab fa-cc-mastercard"></i>
+            <i class="fab fa-paypal"></i>
+        </div>
+        <p class="footer-text">© 2026 Todos los derechos reservados. Reprogramación de centralitas 100% online segura y garantizada.</p>
+    </footer>
+
+    <!-- CHECKOUT MODAL (Simulated) -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal-content">
+            <i class="fas fa-check-circle modal-icon"></i>
+            <h3>¡Procesando Pago Seguro!</h3>
+            <p>Se está conectando a la pasarela bancaria. (Esto es una simulación de compra para la versión de demostración).</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">En un entorno real, serías redirigido a Stripe o PayPal.</p>
+            <button class="btn btn-outline" style="margin-top: 1rem;" onclick="closeModal()">Cerrar Demostración</button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Adjust Header offset based on Trust Banner height
+        window.addEventListener('DOMContentLoaded', () => {
+            const banner = document.getElementById('trustBanner');
+            const header = document.getElementById('mainHeader');
+            if(banner && header) {
+                header.style.top = banner.offsetHeight + 'px';
+            }
+        });
+        
+        window.addEventListener('resize', () => {
+            const banner = document.getElementById('trustBanner');
+            const header = document.getElementById('mainHeader');
+            if(banner && header) {
+                header.style.top = banner.offsetHeight + 'px';
+            }
+        });
+
+        // SPA Navigation Logic
+        function navigate(pageId) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            const targetSection = document.getElementById(pageId);
+            if(targetSection) targetSection.classList.add('active');
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if(link.getAttribute('data-target') === pageId) link.classList.add('active');
+            });
+
+            const navUl = document.getElementById('nav-links');
+            if(navUl.classList.contains('show')) navUl.classList.remove('show');
+            window.scrollTo(0, 0);
+
+            // If navigating to cart, render it
+            if(pageId === 'cart') {
+                renderCart();
+            }
+        }
+
+        function toggleMenu() {
+            document.getElementById('nav-links').classList.toggle('show');
+        }
+
+        // Cart State
+        let cart = [];
+
+        function addToCart(productName, price, type) {
+            cart.push({ id: Date.now(), name: productName, price: price, type: type });
+            updateCartCounter();
+            
+            const counter = document.getElementById('cart-counter');
+            counter.style.transform = 'scale(1.5)';
+            counter.style.backgroundColor = '#00e676'; // turn green briefly
+            setTimeout(() => {
+                counter.style.transform = 'scale(1)';
+                counter.style.backgroundColor = 'var(--accent-red)';
+            }, 300);
+
+            // Auto navigate to Cart
+            navigate('cart');
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartCounter();
+            renderCart();
+        }
+
+        function updateCartCounter() {
+            document.getElementById('cart-counter').innerText = cart.length;
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-content');
+            
+            if(cart.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart-msg">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3>Tu carrito está vacío</h3>
+                        <p style="margin-top: 1rem; margin-bottom: 2rem;">No pierdas la oportunidad de optimizar tu motor hoy mismo.</p>
+                        <button class="btn btn-primary" onclick="navigate('shop')">Volver a la Tienda</button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Check if user is missing HW or SW
+            const hasHW = cart.some(item => item.type === 'hw');
+            const hasSW = cart.some(item => item.type === 'sw');
+            
+            let warningHTML = '';
+            if (hasHW && !hasSW) {
+                warningHTML = `<div style="background-color: rgba(230,25,60,0.1); border: 1px solid var(--accent-red); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; color: var(--text-main);"><i class="fas fa-exclamation-triangle" style="color: var(--accent-red); font-size: 1.2rem;"></i> <strong> ¡Atención!</strong> Tienes el hardware, pero necesitas añadir un <strong>Mapa (Software)</strong> a tu carrito para reprogramar tu coche.</div>`;
+            } else if (!hasHW && hasSW) {
+                warningHTML = `<div style="background-color: rgba(230,25,60,0.1); border: 1px solid var(--accent-red); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; color: var(--text-main);"><i class="fas fa-exclamation-triangle" style="color: var(--accent-red); font-size: 1.2rem;"></i> <strong> ¡Atención!</strong> Tienes un software, pero necesitas el <strong>MecaNode (Hardware)</strong> en tu carrito para poder flashearlo en tu coche.</div>`;
+            }
+
+            let tableHTML = `
+                ${warningHTML}
+                <div style="overflow-x: auto;">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th style="text-align: right;">Precio</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price;
+                tableHTML += `
+                    <tr>
+                        <td>
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-desc">${item.type === 'hw' ? 'Dispositivo Físico (Hardware)' : 'Licencia Digital (Software)'}</div>
+                        </td>
+                        <td style="text-align: right;" class="cart-item-price">${item.price.toFixed(2)} €</td>
+                        <td style="text-align: right; width: 50px;">
+                            <button class="cart-remove" onclick="removeFromCart(${item.id})" title="Eliminar"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `</tbody></table></div>`;
+
+            // Order summary
+            let summaryHTML = `
+                <div class="cart-summary">
+                    <div class="summary-row"><span>Subtotal:</span> <span>${total.toFixed(2)} €</span></div>
+                    <div class="summary-row"><span>Envío (Europa):</span> <span style="color: var(--success-green); font-weight: bold;">GRATIS</span></div>
+                    <div class="summary-total"><span>Total a pagar:</span> <span>${total.toFixed(2)} €</span></div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;"><i class="fas fa-shield-alt" style="color: var(--success-green);"></i> Pago 100% seguro. Cifrado SSL 256-bit.</p>
+                    <button class="btn btn-success" style="width: 100%; font-size: 1.1rem; padding: 1.2rem;" onclick="simulateCheckout()">Proceder al Pago Seguro <i class="fas fa-lock" style="margin-left: 10px;"></i></button>
+                    <button class="btn btn-outline" style="width: 100%; margin-top: 1rem;" onclick="navigate('shop')">Seguir Comprando</button>
+                </div>
+            `;
+
+            container.innerHTML = tableHTML + summaryHTML;
+        }
+
+        // Checkout Simulation
+        function simulateCheckout() {
+            document.getElementById('checkoutModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('checkoutModal').style.display = 'none';
+            // Simulate successful order
+            cart = [];
+            updateCartCounter();
+            alert("¡Compra simulada con éxito! Redirigiendo a Inicio.");
+            navigate('home');
+        }
+
+        // Contact Form
+        function submitContactForm(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            alert(`¡Consulta enviada, ${name}!\n\nNuestros ingenieros revisarán tus datos y te escribirán para confirmar las ganancias de potencia en tu coche.`);
+            document.getElementById('contactForm').reset();
+        }
+    </script>
+</body>
+</html>
