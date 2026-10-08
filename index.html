@@ -46,10 +46,7 @@
 
         /* PRELOADER */
         #preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 10000; display: flex; justify-content: center; align-items: center; transition: opacity 0.6s ease; }
-        .loader-logo { font-size: 2rem; font-weight: 300; letter-spacing: 4px; text-transform: uppercase; animation: pulseLogo 1.5s infinite alternate; }
-        .loader-logo span.meca { color: var(--text-main); font-weight: 700; }
-        .loader-logo span.tuning { color: var(--text-muted); }
-        .loader-logo span.dot { color: var(--accent-red); font-weight: 700; }
+        .loader-logo-img { height: 80px; animation: pulseLogo 1.5s infinite alternate; }
         @keyframes pulseLogo { from { opacity: 0.3; transform: scale(0.95); } to { opacity: 1; transform: scale(1.05); } }
 
         /* TOAST NOTIFICATIONS */
@@ -92,10 +89,9 @@
         }
         header.scrolled { box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .nav-container { max-width: 1400px; margin: 0 auto; padding: 1.2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.3rem; font-weight: 300; letter-spacing: 3px; cursor: pointer; text-transform: uppercase; }
-        .logo span.meca { color: var(--text-main); font-weight: 700;}
-        .logo span.tuning { color: var(--text-muted); }
-        .logo span.dot { color: var(--accent-red); font-weight: 700; }
+        
+        .logo-img { height: 32px; width: auto; cursor: pointer; transition: var(--transition); }
+        .logo-img:hover { opacity: 0.8; }
         
         nav ul { list-style: none; display: flex; gap: 3rem; }
         nav a { color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; transition: var(--transition); cursor: pointer; position: relative;}
@@ -282,8 +278,8 @@
         textarea.form-control { resize: vertical; min-height: 120px; }
 
         footer { background: #050506; border-top: 1px solid rgba(255,255,255,0.03); padding: 5rem 2rem; text-align: center; margin-top: 4rem;}
-        .footer-logo { font-size: 1.2rem; font-weight: 300; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 3px; color: var(--text-muted);}
-        .footer-logo span.tuning { font-weight: 600; color: var(--text-main); }
+        .footer-logo-img { height: 40px; margin-bottom: 1.5rem; opacity: 0.6; transition: opacity 0.3s; cursor: pointer; }
+        .footer-logo-img:hover { opacity: 1; }
         .footer-text { color: #5a6175; font-size: 0.8rem; font-weight: 300; letter-spacing: 1px;}
 
         /* Responsive */
@@ -296,6 +292,7 @@
         @media (max-width: 768px) {
             header { top: 35px !important; }
             .nav-container { padding: 1rem 1.5rem; }
+            .logo-img { height: 24px; }
             .mobile-menu-btn { display: block; }
             nav ul { position: absolute; top: 100%; left: 0; width: 100%; background: rgba(10, 10, 12, 0.98); flex-direction: column; gap: 0; border-bottom: var(--glass-border); display: none; }
             nav ul.show { display: flex; }
@@ -313,7 +310,7 @@
 
     <!-- PRELOADER -->
     <div id="preloader">
-        <div class="loader-logo">Meca<span class="tuning">Tuning</span><span class="dot">.</span></div>
+        <img src="https://i.imgur.com/ogLdizl.png" alt="MecaTuning" class="loader-logo-img">
     </div>
 
     <!-- TOAST CONTAINER -->
@@ -331,9 +328,7 @@
     <!-- Header & Nav -->
     <header id="mainHeader">
         <div class="nav-container">
-            <div class="logo" onclick="navigate('home')">
-                <span class="meca">Meca</span><span class="tuning">Tuning</span><span class="dot">.</span>
-            </div>
+            <img src="https://i.imgur.com/ci4xiEP.png" alt="MecaTuning & Diagnostics" class="logo-img" onclick="navigate('home')">
             
             <nav>
                 <button class="mobile-menu-btn" onclick="toggleMenu()">
@@ -656,7 +651,7 @@
     </main>
 
     <footer>
-        <div class="footer-logo">Meca<span class="tuning">Tuning.</span></div>
+        <img src="https://i.imgur.com/ci4xiEP.png" alt="MecaTuning & Diagnostics" class="footer-logo-img" onclick="window.scrollTo(0,0)">
         <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 2.5rem; color: rgba(255,255,255,0.2); font-size: 1.5rem;">
             <i class="fab fa-cc-visa" style="transition: color 0.3s; cursor:pointer;" onmouseover="this.style.color='var(--text-muted)'" onmouseout="this.style.color='rgba(255,255,255,0.2)'"></i>
             <i class="fab fa-cc-mastercard" style="transition: color 0.3s; cursor:pointer;" onmouseover="this.style.color='var(--text-muted)'" onmouseout="this.style.color='rgba(255,255,255,0.2)'"></i>
