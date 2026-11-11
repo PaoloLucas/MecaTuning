@@ -608,15 +608,23 @@
         .paint-dot.active { border-color: #fff; transform: scale(1.18); box-shadow: 0 0 8px rgba(255,255,255,0.6); }
 
         .dyno-controls-dock {
-            padding: 1rem 1.2rem;
-            background: rgba(6, 7, 10, 0.92);
+            padding: 0.95rem 1.15rem;
+            background: rgba(6, 7, 10, 0.94);
             border-top: 1px solid rgba(255,255,255,0.06);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 110px;
+            gap: 0.9rem;
+            align-items: stretch;
+            min-width: 0;
+        }
+        .dyno-controls-left {
             display: flex;
             flex-direction: column;
-            gap: 0.85rem;
+            justify-content: center;
+            gap: 0.78rem;
+            min-width: 0;
         }
-        .dyno-controls-dock { min-width: 0; }
-        .dyno-action-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 42px; gap: 0.5rem; align-items: center; min-width: 0; }
+        .dyno-action-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px; gap: 0.45rem; align-items: center; min-width: 0; }
         .btn-ignition {
             background: linear-gradient(145deg, #1d222c, #101319);
             border: 1px solid rgba(255,255,255,0.16);
@@ -645,37 +653,83 @@
             color: #fff;
             box-shadow: 0 0 18px rgba(52, 199, 89, 0.25);
         }
-        .btn-throttle-pedal {
-            grid-column: 1 / -1;
-            order: -1;
-            background: linear-gradient(135deg, var(--accent-red), #8f0e24);
-            border: 1px solid rgba(255,255,255,0.18);
-            color: #fff;
-            border-radius: 8px;
-            padding: 0 0.9rem;
-            height: 46px;
-            min-width: 0;
-            font-family: var(--font-main);
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 1.1px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            cursor: pointer;
-            display: inline-flex;
+        .dyno-pedal-bay {
+            position: relative;
+            background: radial-gradient(circle at 50% 35%, #141924, #05070b 82%);
+            border: 1px solid rgba(255,255,255,0.09);
+            box-shadow: inset 0 6px 16px rgba(0,0,0,0.85), inset 0 -2px 6px rgba(255,255,255,0.04);
+            border-radius: 10px;
+            padding: 6px 8px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            perspective: 420px;
+            overflow: hidden;
+        }
+        .btn-throttle-pedal {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 98px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            color: #cbd5e1;
+            font-family: var(--font-main);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
             user-select: none;
             -webkit-user-select: none;
             touch-action: manipulation;
-            transition: transform 0.08s ease, box-shadow 0.15s ease;
-            box-shadow: 0 6px 18px rgba(211, 26, 56, 0.28);
+            transform-origin: 50% 88%;
+            transform: rotateX(10deg) translateY(-1px);
+            transition: transform 0.08s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.14s ease;
+            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.75));
         }
-        .btn-throttle-pedal:active, .btn-throttle-pedal.pressed {
-            transform: scale(0.97) translateY(2px);
-            box-shadow: 0 0 28px rgba(211, 26, 56, 0.75);
-            background: linear-gradient(135deg, #ff2b4e, #b80d29);
+        .btn-throttle-pedal:hover {
+            filter: drop-shadow(0 6px 14px rgba(211, 26, 56, 0.35));
+        }
+        .btn-throttle-pedal:hover .pedal-cap-text { color: #f8fafc; }
+        .btn-throttle-pedal .pedal-svg {
+            width: 68px;
+            height: 82px;
+            display: block;
+            overflow: visible;
+        }
+        .btn-throttle-pedal .pedal-glow-ring {
+            opacity: 0.35;
+            transition: opacity 0.12s ease;
+        }
+        .btn-throttle-pedal:active,
+        .btn-throttle-pedal.pressed {
+            transform: rotateX(34deg) translateY(3px) scale(0.96);
+            filter: drop-shadow(0 2px 18px rgba(255, 36, 66, 0.78));
+        }
+        .btn-throttle-pedal:active .pedal-glow-ring,
+        .btn-throttle-pedal.pressed .pedal-glow-ring {
+            opacity: 1;
+        }
+        .btn-throttle-pedal:active .pedal-cap-text,
+        .btn-throttle-pedal.pressed .pedal-cap-text {
+            color: #ff6b81;
+        }
+        .pedal-cap-text {
+            font-size: 0.54rem;
+            font-weight: 700;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            line-height: 1.05;
+            text-align: center;
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.12s ease;
         }
         .btn-dyno-pull {
             background: rgba(10, 132, 255, 0.16);
@@ -699,7 +753,17 @@
             transition: all 0.25s ease;
         }
         .btn-dyno-pull:hover { background: var(--accent-blue); }
-        .btn-dyno-pull.running { background: var(--accent-blue); box-shadow: 0 0 18px rgba(10,132,255,0.5); animation: pulseDot 0.9s infinite alternate; }
+        @keyframes pullGlow {
+            from { box-shadow: 0 0 10px rgba(211, 26, 56, 0.4); }
+            to { box-shadow: 0 0 22px rgba(255, 43, 78, 0.8); }
+        }
+        .btn-dyno-pull.running,
+        .btn-dyno-pull.pulling {
+            background: linear-gradient(145deg, rgba(211, 26, 56, 0.28), rgba(211, 26, 56, 0.14));
+            border-color: rgba(211, 26, 56, 0.68);
+            color: #fca5a5;
+            animation: pullGlow 0.9s infinite alternate;
+        }
         .btn-audio-toggle {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.12);
@@ -851,10 +915,15 @@
             .stage-info-pill { justify-content: center; text-align: center; font-size: 0.8rem; }
             .dyno-quick-action { width: 100%; justify-content: center; }
             .dyno-viewport-stage { height: 295px; }
-            .dyno-controls-dock { padding: 0.8rem 0.85rem; }
-            .dyno-action-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px; }
-            .btn-ignition, .btn-dyno-pull { font-size: 0.61rem; padding: 0 0.4rem; }
-            .btn-throttle-pedal { height: 46px; font-size: 0.7rem; }
+            .dyno-controls-dock { padding: 0.75rem 0.8rem; grid-template-columns: minmax(0, 1fr) 92px; gap: 0.65rem; }
+            .dyno-action-row { grid-template-columns: minmax(0, 1fr) 38px; gap: 0.4rem; }
+            .dyno-action-row .btn-ignition { grid-column: 1 / -1; height: 36px; font-size: 0.61rem; padding: 0 0.45rem; }
+            .dyno-action-row .btn-dyno-pull { height: 36px; font-size: 0.61rem; padding: 0 0.45rem; }
+            .dyno-action-row .btn-audio-toggle { width: 38px; height: 36px; }
+            .dyno-pedal-bay { min-height: 102px; padding: 5px; }
+            .btn-throttle-pedal { min-height: 92px; }
+            .btn-throttle-pedal .pedal-svg { width: 58px; height: 72px; }
+            .pedal-cap-text { font-size: 0.48rem; letter-spacing: 0.4px; }
             .dyno-cluster-top { grid-template-columns: 1fr; }
             .dyno-kbd-hint { display: none; }
             header { top: 35px !important; }
@@ -1180,28 +1249,76 @@
                                 </div>
 
                                 <div class="dyno-controls-dock">
-                                    <div class="dyno-action-row">
-                                        <button type="button" class="btn-ignition" id="btn-ignition" onclick="DynoSim.toggleIgnition()">
-                                            <i class="fas fa-power-off" aria-hidden="true"></i>
-                                            <span id="btn-ignition-text" data-i18n="dyno_btn_start">Arrancar Motor</span>
-                                        </button>
-                                        <button type="button" class="btn-throttle-pedal" id="btn-throttle-pedal">
-                                            <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
-                                            <span data-i18n="dyno_btn_rev">Acelerar (Mantener)</span>
-                                        </button>
-                                        <button type="button" class="btn-dyno-pull" id="btn-dyno-pull" onclick="DynoSim.startDynoPull()">
-                                            <i class="fas fa-play" id="btn-dyno-pull-icon" aria-hidden="true"></i>
-                                            <span id="btn-dyno-pull-text" data-i18n="dyno_btn_pull">Lanzada Dyno</span>
-                                        </button>
-                                        <button type="button" class="btn-audio-toggle" id="btn-audio-mute" onclick="DynoSim.toggleMute()" aria-label="Alternar audio motor" title="Audio Motor ON/OFF">
-                                            <i class="fas fa-volume-up" id="audio-mute-icon" aria-hidden="true"></i>
-                                        </button>
+                                    <div class="dyno-controls-left">
+                                        <div class="dyno-action-row">
+                                            <button type="button" class="btn-ignition" id="btn-ignition" onclick="DynoSim.toggleIgnition()">
+                                                <i class="fas fa-power-off" aria-hidden="true"></i>
+                                                <span id="btn-ignition-text" data-i18n="dyno_btn_start">Arrancar Motor</span>
+                                            </button>
+                                            <button type="button" class="btn-dyno-pull" id="btn-dyno-pull" onclick="DynoSim.startDynoPull()">
+                                                <i class="fas fa-play" id="btn-dyno-pull-icon" aria-hidden="true"></i>
+                                                <span id="btn-dyno-pull-text" data-i18n="dyno_btn_pull">Lanzada Dyno</span>
+                                            </button>
+                                            <button type="button" class="btn-audio-toggle" id="btn-audio-mute" onclick="DynoSim.toggleMute()" aria-label="Alternar audio motor" title="Audio Motor ON/OFF">
+                                                <i class="fas fa-volume-up" id="audio-mute-icon" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                        <div class="dyno-slider-row">
+                                            <label for="throttle-slider" data-i18n="dyno_throttle_lbl">Pedal / Carga</label>
+                                            <input type="range" id="throttle-slider" class="dyno-throttle-slider" min="0" max="100" value="0">
+                                            <span id="throttle-pct" style="min-width: 36px; text-align: right; color: var(--text-main); font-weight: 600;">0%</span>
+                                            <span class="dyno-kbd-hint" data-i18n="dyno_space_hint">[ESPACIO] Gas</span>
+                                        </div>
                                     </div>
-                                    <div class="dyno-slider-row">
-                                        <label for="throttle-slider" data-i18n="dyno_throttle_lbl">Pedal / Carga</label>
-                                        <input type="range" id="throttle-slider" class="dyno-throttle-slider" min="0" max="100" value="0">
-                                        <span id="throttle-pct" style="min-width: 36px; text-align: right; color: var(--text-main); font-weight: 600;">0%</span>
-                                        <span class="dyno-kbd-hint" data-i18n="dyno_space_hint">[ESPACIO] Gas</span>
+
+                                    <div class="dyno-pedal-bay" title="Mantén pulsado para acelerar">
+                                        <button type="button" class="btn-throttle-pedal" id="btn-throttle-pedal" aria-label="Pedal de acelerador">
+                                            <svg class="pedal-svg" viewBox="0 0 92 126" aria-hidden="true">
+                                                <defs>
+                                                    <linearGradient id="pedalBillet" x1="0" y1="0" x2="1" y2="1">
+                                                        <stop offset="0%" stop-color="#94a3b8"/>
+                                                        <stop offset="32%" stop-color="#475569"/>
+                                                        <stop offset="72%" stop-color="#1e293b"/>
+                                                        <stop offset="100%" stop-color="#0f172a"/>
+                                                    </linearGradient>
+                                                    <linearGradient id="pedalFace" x1="0.2" y1="0" x2="0.8" y2="1">
+                                                        <stop offset="0%" stop-color="#e2e8f0"/>
+                                                        <stop offset="28%" stop-color="#94a3b8"/>
+                                                        <stop offset="70%" stop-color="#475569"/>
+                                                        <stop offset="100%" stop-color="#334155"/>
+                                                    </linearGradient>
+                                                    <linearGradient id="pedalRedTrim" x1="0" y1="0" x2="1" y2="0">
+                                                        <stop offset="0%" stop-color="#d31a38"/>
+                                                        <stop offset="100%" stop-color="#ff3b5c"/>
+                                                    </linearGradient>
+                                                </defs>
+                                                <!-- Brazo metálico posterior del pedal -->
+                                                <path d="M40 4 L52 4 L50 38 L42 38 Z" fill="#334155" stroke="#64748b" stroke-width="1"/>
+                                                <!-- Bisagra inferior anclada al piso -->
+                                                <rect x="24" y="114" width="44" height="8" rx="3" fill="#0f172a" stroke="#475569" stroke-width="1.2"/>
+                                                <line x1="27" y1="118" x2="65" y2="118" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+                                                <!-- Halo deportivo al acelerar -->
+                                                <path class="pedal-glow-ring" d="M24 10 C38 4 64 5 72 15 C78 24 76 62 71 92 C69 107 65 113 58 115 L31 115 C26 112 22 98 20 74 C17 44 16 18 24 10 Z" fill="none" stroke="#ff2b4e" stroke-width="4" opacity="0.35"/>
+                                                <!-- Base biselada aluminio CNC (silueta pedal órgano asimétrico) -->
+                                                <path d="M24 10 C38 4 64 5 72 15 C78 24 76 62 71 92 C69 107 65 113 58 115 L31 115 C26 112 22 98 20 74 C17 44 16 18 24 10 Z" fill="url(#pedalBillet)" stroke="#cbd5e1" stroke-opacity="0.45" stroke-width="1.3"/>
+                                                <!-- Placa frontal cepillada -->
+                                                <path d="M27 14 C39 9 61 10 68 18 C73 25 71 60 67 89 C65 102 62 108 56 110 L33 110 C29 107 26 95 24 72 C21 44 21 21 27 14 Z" fill="url(#pedalFace)" opacity="0.92"/>
+                                                <!-- Banda roja anodizada de tope superior -->
+                                                <path d="M28 15 C40 10 60 11 67 18 L66 24 C56 19 38 18 27 22 Z" fill="url(#pedalRedTrim)"/>
+                                                <!-- Nervaduras de goma antideslizante + orificios aligerados -->
+                                                <g fill="#0b0f17" stroke="#1e293b" stroke-width="0.6">
+                                                    <rect x="27" y="34" width="38" height="6" rx="3" transform="rotate(-5 46 37)"/>
+                                                    <rect x="28" y="48" width="36" height="6" rx="3" transform="rotate(-5 46 51)"/>
+                                                    <rect x="29" y="62" width="34" height="6" rx="3" transform="rotate(-5 46 65)"/>
+                                                    <rect x="30" y="76" width="32" height="6" rx="3" transform="rotate(-5 46 79)"/>
+                                                    <rect x="32" y="90" width="28" height="6" rx="3" transform="rotate(-5 46 93)"/>
+                                                </g>
+                                                <circle cx="47" cy="28" r="2.3" fill="#0f172a" stroke="#e2e8f0" stroke-width="0.6"/>
+                                                <circle cx="46" cy="102" r="2.3" fill="#0f172a" stroke="#e2e8f0" stroke-width="0.6"/>
+                                                <text x="48" y="19.5" text-anchor="middle" fill="#ffffff" font-family="Orbitron, sans-serif" font-size="6.8" font-weight="800" letter-spacing="1.2">GAS</text>
+                                            </svg>
+                                            <span class="pedal-cap-text" data-i18n="dyno_btn_rev">Pisar Gas</span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1647,7 +1764,7 @@
                 cam_top: "Cenital",
                 dyno_btn_start: "Arrancar Motor",
                 dyno_btn_stop: "Apagar Motor",
-                dyno_btn_rev: "Acelerar (Mantener)",
+                dyno_btn_rev: "Pisar Gas",
                 dyno_btn_pull: "Lanzada Dyno",
                 dyno_btn_pull_stop: "Parar Lanzada",
                 dyno_glb_btn: "+ .GLB",
@@ -1888,7 +2005,7 @@
                 cam_top: "Top",
                 dyno_btn_start: "Start Engine",
                 dyno_btn_stop: "Stop Engine",
-                dyno_btn_rev: "Rev Engine (Hold)",
+                dyno_btn_rev: "Hold Gas",
                 dyno_btn_pull: "Dyno Pull",
                 dyno_btn_pull_stop: "Stop Pull",
                 dyno_glb_btn: "+ .GLB",
