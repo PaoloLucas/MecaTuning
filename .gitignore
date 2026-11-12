@@ -1,0 +1,4 @@
+# Archivos locales para ejecución offline / copias de seguridad
+index.html.backup
+models/*.glb.js
+Abrir_MecaTuning_3D.bat

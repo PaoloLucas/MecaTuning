@@ -676,7 +676,20 @@
         .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; }
         .dyno-results { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.08); animation: fadeIn 0.4s ease; }
         .dyno-top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.2rem; margin-bottom: 1.8rem; }
-        .dyno-badge { display: inline-flex; align-items: center; gap: 8px; color: var(--success-green); font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+        .dyno-badge { display: inline-flex; align-items: center; gap: 8px; color: var(--success-green); font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.25s ease; }
+        .dyno-badge.is-demo {
+            color: var(--accent-cyan);
+            background: rgba(56, 189, 248, 0.11);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            padding: 6px 14px;
+            border-radius: 999px;
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.12);
+        }
+        .dyno-live-dot.demo {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 9px rgba(56, 189, 248, 0.85);
+            animation: pulseDot 1.4s infinite alternate;
+        }
 
         .dyno-stage-selector { display: inline-flex; background: rgba(8, 9, 13, 0.68); border: var(--glass-border); border-radius: 999px; padding: 4px; gap: 4px; flex-wrap: wrap; }
         .dyno-stage-btn { background: transparent; border: none; color: var(--text-muted); padding: 0.6rem 1.2rem; border-radius: 999px; font-family: var(--font-main); font-size: 0.74rem; font-weight: 600; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
@@ -823,6 +836,27 @@
             animation: pulseDot 1s infinite alternate;
         }
         @keyframes pulseDot { from { opacity: 0.6; transform: scale(0.9); } to { opacity: 1; transform: scale(1.25); } }
+
+        .dyno-glb-loading {
+            position: absolute;
+            top: 52px;
+            left: 12px;
+            z-index: 9;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 18px;
+            background: rgba(8, 11, 18, 0.84);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: var(--accent-cyan);
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            pointer-events: none;
+        }
+        .dyno-glb-loading.visible { display: inline-flex; }
 
         .dyno-mode-switch {
             display: inline-flex;
@@ -1567,11 +1601,11 @@
                     </div>
 
                     <!-- Resultados dinámicos de telemetría -->
-                    <div id="dyno-results" class="dyno-results" style="display: none;">
+                    <div id="dyno-results" class="dyno-results">
                         <div class="dyno-top-bar">
-                            <div class="dyno-badge">
-                                <i class="fas fa-check-circle" aria-hidden="true"></i> 
-                                <span data-i18n="dyno_badge">ECU Compatible con MecaNode Anti-Brick</span>
+                            <div class="dyno-badge" id="dyno-badge">
+                                <i class="fas fa-check-circle" id="dyno-badge-icon" aria-hidden="true"></i> 
+                                <span id="dyno-badge-text" data-i18n="dyno_badge">ECU Compatible con MecaNode Anti-Brick</span>
                             </div>
                             <div class="dyno-stage-selector" role="tablist" aria-label="Selector de paquete de reprogramación">
                                 <button type="button" class="dyno-stage-btn" id="dyno-tab-eco" onclick="selectDynoStage('eco')" role="tab" aria-selected="false">
@@ -1632,6 +1666,11 @@
                                             <button type="button" class="dyno-mode-btn active" id="btn-view-3d" onclick="DynoSim.setViewMode('3d')" data-i18n="dyno_view_3d">3D Dyno</button>
                                             <button type="button" class="dyno-mode-btn" id="btn-view-specs" onclick="DynoSim.setViewMode('specs')" data-i18n="dyno_view_specs">Specs ECU</button>
                                         </div>
+                                    </div>
+
+                                    <div class="dyno-glb-loading" id="dyno-glb-loading" aria-live="polite">
+                                        <i class="fas fa-circle-notch fa-spin" aria-hidden="true"></i>
+                                        <span data-i18n="dyno_glb_loading">Cargando modelo 3D...</span>
                                     </div>
 
                                     <div class="dyno-hud-bottom" id="dyno-hud-bottom">
@@ -2170,6 +2209,9 @@
                 spec_cloud_lbl: "Protección Térmica",
                 spec_cloud_val: "EGT &lt; 850 °C · AES-256",
                 dyno_status_standby: "STANDBY",
+                dyno_status_demo: "MODO DEMO",
+                dyno_demo_prefix: "MODO DEMO",
+                dyno_demo_hint: "Selecciona marca y motor arriba",
                 dyno_status_running: "MOTOR ON",
                 dyno_status_pull: "LANZADA DYNO",
                 dyno_view_3d: "3D Dyno",
@@ -2184,6 +2226,7 @@
                 dyno_btn_pull_stop: "Parar Lanzada",
                 dyno_glb_btn: "+ .GLB",
                 dyno_glb_reset: "Modelo Auto",
+                dyno_glb_loading: "Cargando modelo 3D...",
                 toast_glb_loaded: "Modelo 3D cargado en banco de pruebas.",
                 toast_glb_error: "No se pudo cargar el archivo 3D (.glb/.gltf).",
                 dyno_throttle_lbl: "Pedal / Carga",
@@ -2411,6 +2454,9 @@
                 spec_cloud_lbl: "Thermal Protection",
                 spec_cloud_val: "EGT &lt; 850 °C · AES-256",
                 dyno_status_standby: "STANDBY",
+                dyno_status_demo: "DEMO MODE",
+                dyno_demo_prefix: "DEMO MODE",
+                dyno_demo_hint: "Select brand & engine above",
                 dyno_status_running: "ENGINE ON",
                 dyno_status_pull: "DYNO PULL",
                 dyno_view_3d: "3D Dyno",
@@ -2425,6 +2471,7 @@
                 dyno_btn_pull_stop: "Stop Pull",
                 dyno_glb_btn: "+ .GLB",
                 dyno_glb_reset: "Reset Mesh",
+                dyno_glb_loading: "Loading 3D chassis...",
                 toast_glb_loaded: "3D model mounted onto dyno rollers.",
                 toast_glb_error: "Could not parse 3D model file (.glb/.gltf).",
                 dyno_throttle_lbl: "Throttle / Load",
@@ -2609,7 +2656,7 @@
             // Conservar selección de vehículo al reconstruir opciones del selector
             const prevModelVal = document.getElementById('car-model')?.value ?? '';
             setPurchaseMode(purchaseMode);
-            updateModels();
+            updateModels(true);
             const modelSelect = document.getElementById('car-model');
             if (modelSelect && prevModelVal !== '' && modelSelect.querySelector(`option[value="${prevModelVal}"]`)) {
                 modelSelect.value = prevModelVal;
@@ -4061,16 +4108,30 @@
             calculateGains();
         }
 
-        function updateModels() {
+        function getDemoVehicle(preferredBrand) {
+            if (preferredBrand && vehicleDB[preferredBrand] && vehicleDB[preferredBrand].length > 0) {
+                const list = vehicleDB[preferredBrand];
+                const flagship = list.reduce((best, item) => (item.stockHp > best.stockHp ? item : best), list[0]);
+                return { brand: preferredBrand, car: flagship };
+            }
+            const porscheList = vehicleDB.porsche || [];
+            const cayman = porscheList.find((c) => /718\s*Cayman/i.test(c.name)) || porscheList[0];
+            if (cayman) return { brand: 'porsche', car: cayman };
+            const firstBrand = Object.keys(vehicleDB)[0];
+            return { brand: firstBrand, car: vehicleDB[firstBrand][0] };
+        }
+
+        function updateModels(skipRecalc = false) {
             const brand = document.getElementById('car-brand').value;
             const modelSelect = document.getElementById('car-model');
-            const resultsBox = document.getElementById('dyno-results');
-            
+
             if (!brand || !vehicleDB[brand]) {
                 modelSelect.innerHTML = `<option value="">${t('cfg_model_first')}</option>`;
                 modelSelect.disabled = true;
-                resultsBox.style.display = 'none';
-                if (window.DynoSim) window.DynoSim.setActive(false);
+                if (!skipRecalc) {
+                    localStorage.removeItem('meca_vehicle');
+                    calculateGains();
+                }
                 return;
             }
 
@@ -4082,77 +4143,99 @@
                 modelSelect.appendChild(opt);
             });
             modelSelect.disabled = false;
+            if (!skipRecalc) {
+                localStorage.removeItem('meca_vehicle');
+                calculateGains();
+            }
         }
 
         function calculateGains() {
             const brand = document.getElementById('car-brand').value;
             const modelIdx = document.getElementById('car-model').value;
             const resultsBox = document.getElementById('dyno-results');
+            const hasSelection = Boolean(brand && modelIdx !== "" && vehicleDB[brand] && vehicleDB[brand][modelIdx]);
+            const isDemo = !hasSelection;
 
-            if (brand && modelIdx !== "" && vehicleDB[brand] && vehicleDB[brand][modelIdx]) {
-                const car = vehicleDB[brand][modelIdx];
+            let targetBrand = brand;
+            let car = hasSelection ? vehicleDB[brand][modelIdx] : null;
+            if (isDemo) {
+                const demo = getDemoVehicle(brand);
+                targetBrand = demo.brand;
+                car = demo.car;
+            } else {
                 selectedVehicle = car.name;
                 localStorage.setItem('meca_vehicle', selectedVehicle);
+            }
 
-                const stageData = (car.stages && car.stages[currentDynoStage]) 
-                    ? car.stages[currentDynoStage] 
-                    : { hp: car.tunedHp, nm: car.tunedNm };
+            if (!car) return;
 
-                const unit = t('hp_unit');
-                const tunedHp = stageData.hp;
-                const tunedNm = stageData.nm;
-                const diffHp = tunedHp - car.stockHp;
-                const diffNm = tunedNm - car.stockNm;
+            const stageData = (car.stages && car.stages[currentDynoStage])
+                ? car.stages[currentDynoStage]
+                : { hp: car.tunedHp, nm: car.tunedNm };
 
-                // Labels
-                const hpLabel = document.getElementById('dyno-hp-label');
-                const nmLabel = document.getElementById('dyno-nm-label');
-                if (hpLabel) hpLabel.textContent = t(`dyno_hp_label_${currentDynoStage}`);
-                if (nmLabel) nmLabel.textContent = t(`dyno_nm_label_${currentDynoStage}`);
+            const unit = t('hp_unit');
+            const tunedHp = stageData.hp;
+            const tunedNm = stageData.nm;
+            const diffHp = tunedHp - car.stockHp;
+            const diffNm = tunedNm - car.stockNm;
 
-                // Values
-                const stockHpEl = document.getElementById('stock-hp');
-                const tunedHpEl = document.getElementById('tuned-hp');
-                const deltaHpEl = document.getElementById('delta-hp');
-                const stockNmEl = document.getElementById('stock-nm');
-                const tunedNmEl = document.getElementById('tuned-nm');
-                const deltaNmEl = document.getElementById('delta-nm');
+            // Labels
+            const hpLabel = document.getElementById('dyno-hp-label');
+            const nmLabel = document.getElementById('dyno-nm-label');
+            if (hpLabel) hpLabel.textContent = t(`dyno_hp_label_${currentDynoStage}`);
+            if (nmLabel) nmLabel.textContent = t(`dyno_nm_label_${currentDynoStage}`);
 
-                if (stockHpEl) stockHpEl.textContent = `${car.stockHp} ${unit}`;
-                if (tunedHpEl) {
-                    tunedHpEl.textContent = `${tunedHp} ${unit}`;
-                    tunedHpEl.className = `val-new val-${currentDynoStage}`;
-                }
-                if (deltaHpEl) {
-                    deltaHpEl.textContent = `+${diffHp} ${unit}`;
-                    deltaHpEl.className = `metric-delta delta-${currentDynoStage}`;
-                }
+            // Values
+            const stockHpEl = document.getElementById('stock-hp');
+            const tunedHpEl = document.getElementById('tuned-hp');
+            const deltaHpEl = document.getElementById('delta-hp');
+            const stockNmEl = document.getElementById('stock-nm');
+            const tunedNmEl = document.getElementById('tuned-nm');
+            const deltaNmEl = document.getElementById('delta-nm');
 
-                if (stockNmEl) stockNmEl.textContent = `${car.stockNm} Nm`;
-                if (tunedNmEl) {
-                    tunedNmEl.textContent = `${tunedNm} Nm`;
-                    tunedNmEl.className = `val-new val-${currentDynoStage}`;
-                }
-                if (deltaNmEl) {
-                    deltaNmEl.textContent = `+${diffNm} Nm`;
-                    deltaNmEl.className = `metric-delta delta-${currentDynoStage}`;
-                }
+            if (stockHpEl) stockHpEl.textContent = `${car.stockHp} ${unit}`;
+            if (tunedHpEl) {
+                tunedHpEl.textContent = `${tunedHp} ${unit}`;
+                tunedHpEl.className = `val-new val-${currentDynoStage}`;
+            }
+            if (deltaHpEl) {
+                deltaHpEl.textContent = `+${diffHp} ${unit}`;
+                deltaHpEl.className = `metric-delta delta-${currentDynoStage}`;
+            }
 
-                // Info pill and quick action button
-                const infoText = document.getElementById('stage-info-text');
-                if (infoText) infoText.innerHTML = t(`dyno_info_${currentDynoStage}`);
+            if (stockNmEl) stockNmEl.textContent = `${car.stockNm} Nm`;
+            if (tunedNmEl) {
+                tunedNmEl.textContent = `${tunedNm} Nm`;
+                tunedNmEl.className = `val-new val-${currentDynoStage}`;
+            }
+            if (deltaNmEl) {
+                deltaNmEl.textContent = `+${diffNm} Nm`;
+                deltaNmEl.className = `metric-delta delta-${currentDynoStage}`;
+            }
 
-                const actionText = document.getElementById('dyno-action-text');
-                if (actionText) actionText.textContent = t(`dyno_btn_${currentDynoStage}`);
+            // Badge Demo vs Vehículo Seleccionado
+            const dynoBadge = document.getElementById('dyno-badge');
+            const dynoBadgeIcon = document.getElementById('dyno-badge-icon');
+            const dynoBadgeText = document.getElementById('dyno-badge-text');
+            if (dynoBadge) dynoBadge.classList.toggle('is-demo', isDemo);
+            if (dynoBadgeIcon) dynoBadgeIcon.className = isDemo ? 'fas fa-play-circle' : 'fas fa-check-circle';
+            if (dynoBadgeText) {
+                dynoBadgeText.textContent = isDemo
+                    ? `${t('dyno_demo_prefix')} · ${car.name} — ${t('dyno_demo_hint')}`
+                    : t('dyno_badge');
+            }
 
-                resultsBox.style.display = 'block';
+            // Info pill and quick action button
+            const infoText = document.getElementById('stage-info-text');
+            if (infoText) infoText.innerHTML = t(`dyno_info_${currentDynoStage}`);
 
-                if (window.DynoSim) {
-                    window.DynoSim.loadVehicle(brand, car, currentDynoStage);
-                }
-            } else {
-                resultsBox.style.display = 'none';
-                if (window.DynoSim) window.DynoSim.setActive(false);
+            const actionText = document.getElementById('dyno-action-text');
+            if (actionText) actionText.textContent = t(`dyno_btn_${currentDynoStage}`);
+
+            resultsBox.style.display = 'block';
+
+            if (window.DynoSim) {
+                window.DynoSim.loadVehicle(targetBrand, car, currentDynoStage, { isDemo });
             }
         }
 
@@ -4181,23 +4264,27 @@
 
         function initVehicleSelector() {
             const saved = localStorage.getItem('meca_vehicle');
-            if (!saved) return;
-            for (const brand in vehicleDB) {
-                const idx = vehicleDB[brand].findIndex(c => c.name === saved);
-                if (idx !== -1) {
-                    const brandSelect = document.getElementById('car-brand');
-                    if (brandSelect) {
-                        brandSelect.value = brand;
-                        updateModels();
-                        const modelSelect = document.getElementById('car-model');
-                        if (modelSelect) {
-                            modelSelect.value = idx;
-                            selectDynoStage(currentDynoStage);
+            if (saved) {
+                for (const brand in vehicleDB) {
+                    const idx = vehicleDB[brand].findIndex(c => c.name === saved);
+                    if (idx !== -1) {
+                        const brandSelect = document.getElementById('car-brand');
+                        if (brandSelect) {
+                            brandSelect.value = brand;
+                            updateModels(true);
+                            const modelSelect = document.getElementById('car-model');
+                            if (modelSelect) {
+                                modelSelect.value = idx;
+                                selectDynoStage(currentDynoStage);
+                                return;
+                            }
                         }
+                        break;
                     }
-                    break;
                 }
             }
+            // Sin vehículo guardado o selección pendiente -> arrancar en Modo Demo interactivo
+            calculateGains();
         }
 
         function setPurchaseMode(mode) {
@@ -4552,6 +4639,13 @@
                 pickup: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80'
             };
 
+            let drivetrain = 'fwd';
+            if (/\b(quattro|4motion|4matic|xdrive|4drive|4x4|4wd|awd|syncro|s3)\b|golf\s*r\b|focus\s*rs\b|a\s*45|rs\s*[34567]|gt-r|r35|macan|cayenne|panamera\s*4|911\s*(carrera\s*)?4|formentor.*(vz|310)|ranger|hilux|navara|land\s*cruiser|f-?150|raptor|gr\s*yaris/i.test(n)) {
+                drivetrain = 'awd';
+            } else if (/\b(911|718|cayman|boxster|a110|supra|gr86|mustang|stinger|m140i|m240i|m2|m3|m4|m5|318d|320d|330i|520d|530d|c\s*200d|c\s*220d|e\s*220d|c\s*63|panamera|sprinter)\b|clio\s*v6/i.test(n)) {
+                drivetrain = 'rwd';
+            }
+
             return {
                 soundType,
                 cylinders,
@@ -4559,6 +4653,7 @@
                 isDiesel,
                 isHybrid,
                 bodyType,
+                drivetrain,
                 isHotTrim,
                 redline,
                 idleRpm,
@@ -4909,6 +5004,14 @@
                 this.customBlobUrl = null;
                 this.customPaintMats = [];
                 this.gltfLoader = null;
+                this.activeModelKey = null;
+                this.glbBufferCache = new Map();
+                this.glbScriptPromises = new Map();
+            }
+
+            setLoadingIndicator(visible) {
+                const el = document.getElementById('dyno-glb-loading');
+                if (el) el.classList.toggle('visible', Boolean(visible));
             }
 
             ensureInit() {
@@ -4927,7 +5030,7 @@
                     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                     if ('outputEncoding' in renderer) renderer.outputEncoding = THREE.sRGBEncoding;
                     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-                    renderer.toneMappingExposure = 1.15;
+                    renderer.toneMappingExposure = 1.02;
 
                     const scene = new THREE.Scene();
                     scene.background = new THREE.Color(0x06080d);
@@ -4939,40 +5042,79 @@
                     renderer.setSize(w, h, false);
 
                     const camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 60);
-                    camera.position.set(4.5, 2.05, 4.35);
+                    camera.position.set(5.1, 2.28, 4.85);
 
                     let controls = null;
                     if (THREE.OrbitControls) {
                         controls = new THREE.OrbitControls(camera, canvas);
                         controls.enableDamping = true;
                         controls.dampingFactor = 0.07;
-                        controls.target.set(0, 0.65, 0);
+                        controls.target.set(0, 0.72, 0);
                         controls.minDistance = 2.8;
-                        controls.maxDistance = 8.2;
+                        controls.maxDistance = 9.0;
                         controls.maxPolarAngle = Math.PI * 0.47;
-                        controls.addEventListener('start', () => { this.camAnim = null; });
+                        controls.addEventListener('start', () => {
+                            this.camAnim = null;
+                            controls.autoRotate = false;
+                        });
                     }
 
-                    // Iluminación estudio Dyno AAA
-                    scene.add(new THREE.HemisphereLight(0x88b4ff, 0x0a0d14, 0.72));
-                    const keyLight = new THREE.SpotLight(0xffffff, 2.2, 24, Math.PI * 0.28, 0.6);
+                    // Iluminación estudio Dyno AAA (suelo oscuro stealth + reflejos limpios sobre carrocería)
+                    scene.add(new THREE.HemisphereLight(0x88b4ff, 0x05070c, 0.38));
+                    const keyLight = new THREE.SpotLight(0xffffff, 1.85, 24, Math.PI * 0.28, 0.65);
                     keyLight.position.set(3.5, 7.5, 4.5);
                     keyLight.castShadow = true;
                     keyLight.shadow.mapSize.set(1024, 1024);
                     scene.add(keyLight);
 
-                    const rimLight = new THREE.DirectionalLight(0x3b82f6, 1.35);
+                    const rimLight = new THREE.DirectionalLight(0x3b82f6, 1.15);
                     rimLight.position.set(-5.5, 3.0, -4.5);
                     scene.add(rimLight);
 
-                    this.underGlowLight = new THREE.PointLight(0x0a84ff, 1.4, 7.5);
+                    const fillLight = new THREE.DirectionalLight(0xe2e8f0, 0.42);
+                    fillLight.position.set(5.5, 2.4, 4.5);
+                    scene.add(fillLight);
+
+                    if (typeof THREE.PMREMGenerator === 'function') {
+                        try {
+                            const pmrem = new THREE.PMREMGenerator(renderer);
+                            pmrem.compileEquirectangularShader();
+                            const envScene = new THREE.Scene();
+                            envScene.background = new THREE.Color(0x020307);
+                            const topStrip = new THREE.Mesh(
+                                new THREE.PlaneGeometry(9.0, 1.2),
+                                new THREE.MeshBasicMaterial({ color: 0xb8c7e0, side: THREE.DoubleSide })
+                            );
+                            topStrip.position.set(0, 6.2, 0);
+                            topStrip.rotation.x = Math.PI / 2;
+                            envScene.add(topStrip);
+                            const sideBlue = new THREE.Mesh(
+                                new THREE.PlaneGeometry(7.0, 1.4),
+                                new THREE.MeshBasicMaterial({ color: 0x1d4ed8, side: THREE.DoubleSide })
+                            );
+                            sideBlue.position.set(-5.8, 2.5, -5.5);
+                            sideBlue.lookAt(0, 1, 0);
+                            envScene.add(sideBlue);
+                            const sideWarm = new THREE.Mesh(
+                                new THREE.PlaneGeometry(6.0, 1.1),
+                                new THREE.MeshBasicMaterial({ color: 0x94a3b8, side: THREE.DoubleSide })
+                            );
+                            sideWarm.position.set(5.8, 2.2, 5.0);
+                            sideWarm.lookAt(0, 1, 0);
+                            envScene.add(sideWarm);
+                            scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+                            pmrem.dispose();
+                        } catch (envErr) { /* Entorno HDR opcional */ }
+                    }
+
+                    this.underGlowLight = new THREE.PointLight(0x0a84ff, 1.25, 7.5);
                     this.underGlowLight.position.set(0, 0.35, 0);
                     scene.add(this.underGlowLight);
 
                     // Suelo taller dyno + rejilla + foso de rodillos
                     const floor = new THREE.Mesh(
                         new THREE.PlaneGeometry(36, 36),
-                        new THREE.MeshStandardMaterial({ color: 0x0a0c12, metalness: 0.35, roughness: 0.55 })
+                        new THREE.MeshStandardMaterial({ color: 0x07090f, metalness: 0.2, roughness: 0.72, envMapIntensity: 0.05 })
                     );
                     floor.rotation.x = -Math.PI / 2;
                     floor.receiveShadow = true;
@@ -4992,6 +5134,7 @@
                         clearcoat: 0.95,
                         clearcoatRoughness: 0.08
                     });
+                    this.applyLinearPaint(this.paintMat.color, this.currentColor);
                     this.caliperMat = new THREE.MeshStandardMaterial({ color: 0x0a84ff, metalness: 0.55, roughness: 0.28 });
 
                     this.carRoot = new THREE.Group();
@@ -5020,38 +5163,279 @@
             }
 
             buildDynoPit(scene) {
-                const pitFrame = new THREE.Mesh(
-                    new THREE.BoxGeometry(4.4, 0.03, 2.3),
-                    new THREE.MeshStandardMaterial({ color: 0x151923, metalness: 0.7, roughness: 0.4 })
-                );
-                pitFrame.position.y = 0.015;
-                scene.add(pitFrame);
-
-                // Tiras LED perimetrales
-                const stripGeo = new THREE.BoxGeometry(4.45, 0.02, 0.04);
-                const stripMat = new THREE.MeshBasicMaterial({ color: 0x0a84ff });
-                [-1.16, 1.16].forEach(z => {
-                    const strip = new THREE.Mesh(stripGeo, stripMat);
-                    strip.position.set(0, 0.035, z);
-                    scene.add(strip);
-                });
-
-                // 4 rodillos metálicos estriados (2 por eje)
+                if (!this.pitGroup) {
+                    this.pitGroup = new THREE.Group();
+                    scene.add(this.pitGroup);
+                }
+                this.pitMats = {
+                    deck: new THREE.MeshStandardMaterial({ color: 0x0d111a, metalness: 0.42, roughness: 0.65, envMapIntensity: 0.14 }),
+                    well: new THREE.MeshStandardMaterial({ color: 0x030508, metalness: 0.18, roughness: 0.92, envMapIntensity: 0.04 }),
+                    pad: new THREE.MeshStandardMaterial({ color: 0x161c28, metalness: 0.35, roughness: 0.85, envMapIntensity: 0.08 }),
+                    led: new THREE.MeshBasicMaterial({ color: 0x0a84ff }),
+                    roller: new THREE.MeshStandardMaterial({ color: 0x525c6e, metalness: 0.86, roughness: 0.28, envMapIntensity: 0.42 }),
+                    flange: new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.90, roughness: 0.22, envMapIntensity: 0.50 }),
+                    stripe: new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.50, roughness: 0.50 })
+                };
                 this.rollers = [];
-                const rollerMat = new THREE.MeshStandardMaterial({ color: 0x6b7280, metalness: 0.85, roughness: 0.25 });
-                const bandMat = new THREE.MeshBasicMaterial({ color: 0x0a84ff });
-                [-1.42, -1.08, 1.08, 1.42].forEach(rx => {
-                    const rg = new THREE.Group();
-                    rg.position.set(rx, 0.02, 0);
-                    const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 1.95, 20), rollerMat);
-                    cyl.rotation.x = Math.PI / 2;
-                    rg.add(cyl);
-                    // Marca visual para percibir giro rápido
-                    const band = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.29, 1.96), bandMat);
-                    rg.add(band);
-                    scene.add(rg);
-                    this.rollers.push(rg);
+                this.fitDynoPit(null, { drivetrain: 'rwd' }, 'stage1');
+            }
+
+            disposeGroupChildren(group) {
+                while (group.children.length > 0) {
+                    const child = group.children[0];
+                    group.remove(child);
+                    child.traverse((n) => {
+                        if (n.geometry && typeof n.geometry.dispose === 'function') n.geometry.dispose();
+                    });
+                }
+            }
+
+            fitDynoPit(axleSpec, profile, stageKey) {
+                if (!this.pitGroup || !this.pitMats) return;
+                this.disposeGroupChildren(this.pitGroup);
+                this.rollers = [];
+
+                const stageHex = stageKey === 'eco' ? 0x34c759 : stageKey === 'stage2' ? 0xd31a38 : 0x0a84ff;
+                this.pitMats.led.color.setHex(stageHex);
+
+                const spec = axleSpec || {
+                    frontX: 1.32, rearX: -1.32,
+                    frontZ: 0.80, rearZ: 0.80,
+                    frontRadius: 0.34, rearRadius: 0.34,
+                    frontBottomY: 0.025, rearBottomY: 0.025,
+                    tireWidth: 0.25, carLength: 4.38, carWidth: 1.96
+                };
+                this._lastAxleSpec = spec;
+
+                const deckLen = Math.max(4.45, (spec.carLength || 4.38) + 0.52);
+                const deckW = Math.max(2.30, (spec.carWidth || 1.96) + 0.38);
+
+                // Plataforma principal a ras de contacto del neumático (top = 0.025)
+                const pitDeck = new THREE.Mesh(new THREE.BoxGeometry(deckLen, 0.024, deckW), this.pitMats.deck);
+                pitDeck.position.set(0, 0.013, 0);
+                pitDeck.receiveShadow = true;
+                this.pitGroup.add(pitDeck);
+
+                // Tiras LED perimetrales ajustadas al ancho del chasis
+                const stripGeo = new THREE.BoxGeometry(deckLen - 0.06, 0.016, 0.028);
+                [-deckW * 0.5, deckW * 0.5].forEach((zRail) => {
+                    const strip = new THREE.Mesh(stripGeo, this.pitMats.led);
+                    strip.position.set(0, 0.029, zRail);
+                    this.pitGroup.add(strip);
                 });
+
+                const drivetrain = (profile && profile.drivetrain) || 'awd';
+                const axles = [
+                    {
+                        id: 'front',
+                        driven: drivetrain === 'fwd' || drivetrain === 'awd',
+                        x: spec.frontX,
+                        zTrack: spec.frontZ,
+                        wheelR: spec.frontRadius,
+                        bottomY: spec.frontBottomY
+                    },
+                    {
+                        id: 'rear',
+                        driven: drivetrain === 'rwd' || drivetrain === 'awd',
+                        x: spec.rearX,
+                        zTrack: spec.rearZ,
+                        wheelR: spec.rearRadius,
+                        bottomY: spec.rearBottomY
+                    }
+                ];
+
+                const rollerR = 0.11;
+                const cradleRise = 0.044;
+                const drumLen = Math.min(0.50, Math.max(0.32, (spec.tireWidth || 0.25) + 0.11));
+                const rollerXs = [];
+
+                axles.forEach((ax) => {
+                    const wheelR = Math.min(0.46, Math.max(0.26, ax.wheelR || 0.34));
+                    const bottomY = Math.max(0.015, Math.min(0.06, ax.bottomY != null ? ax.bottomY : 0.025));
+
+                    if (!ax.driven) {
+                        // Eje no motriz: calzos/placas de apoyo a medida bajo los neumáticos estáticos
+                        [-ax.zTrack, ax.zTrack].forEach((zw) => {
+                            const pad = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.008, drumLen), this.pitMats.pad);
+                            pad.position.set(ax.x, 0.026, zw);
+                            pad.receiveShadow = true;
+                            this.pitGroup.add(pad);
+                        });
+                        return;
+                    }
+
+                    // Eje motriz: cuna geométrica exacta tangente al radio del neumático (axle.x ± d)
+                    const rollerY = bottomY + cradleRise - rollerR;
+                    const dy = (bottomY + wheelR) - rollerY;
+                    const sumR = wheelR + rollerR;
+                    const halfSpan = Math.sqrt(Math.max(0.020, sumR * sumR - dy * dy));
+                    const bayLen = Math.max(0.56, halfSpan * 2 + rollerR * 2.25);
+
+                    [-ax.zTrack, ax.zTrack].forEach((zw) => {
+                        // Foso oscuro rebajado + guías laterales luminosas alrededor de cada rueda motriz
+                        const well = new THREE.Mesh(new THREE.BoxGeometry(bayLen, 0.006, drumLen + 0.05), this.pitMats.well);
+                        well.position.set(ax.x, 0.025, zw);
+                        this.pitGroup.add(well);
+
+                        const railGeo = new THREE.BoxGeometry(bayLen + 0.04, 0.010, 0.016);
+                        [-drumLen * 0.5 - 0.025, drumLen * 0.5 + 0.025].forEach((dz) => {
+                            const rail = new THREE.Mesh(railGeo, this.pitMats.led);
+                            rail.position.set(ax.x, 0.028, zw + dz);
+                            this.pitGroup.add(rail);
+                        });
+
+                        [-halfSpan, halfSpan].forEach((dx) => {
+                            const rx = ax.x + dx;
+                            rollerXs.push(Number(rx.toFixed(3)));
+                            const rg = new THREE.Group();
+                            rg.position.set(rx, rollerY, zw);
+
+                            const cyl = new THREE.Mesh(new THREE.CylinderGeometry(rollerR, rollerR, drumLen, 28), this.pitMats.roller);
+                            cyl.rotation.x = Math.PI / 2;
+                            rg.add(cyl);
+
+                            const collarGeo = new THREE.CylinderGeometry(rollerR + 0.006, rollerR + 0.006, 0.018, 24);
+                            [-drumLen * 0.48, drumLen * 0.48].forEach((cz) => {
+                                const collar = new THREE.Mesh(collarGeo, this.pitMats.flange);
+                                collar.rotation.x = Math.PI / 2;
+                                collar.position.z = cz;
+                                rg.add(collar);
+                            });
+
+                            // Bandas rasantes sutiles para percibir el giro sin aristas fuera del cilindro
+                            const stripeGeo = new THREE.BoxGeometry(0.012, rollerR * 2.008, drumLen * 0.90);
+                            [0, Math.PI * 0.5].forEach((ang) => {
+                                const stripe = new THREE.Mesh(stripeGeo, this.pitMats.stripe);
+                                stripe.rotation.z = ang;
+                                rg.add(stripe);
+                            });
+
+                            this.pitGroup.add(rg);
+                            this.rollers.push(rg);
+                        });
+                    });
+                });
+
+                this._lastRollerXs = rollerXs;
+            }
+
+            measureAxleSpec(model, wheelQuads, finalBox) {
+                const sz = finalBox.getSize(new THREE.Vector3());
+                const halfL = Math.max(1.5, sz.x * 0.5);
+                const halfW = Math.max(0.75, sz.z * 0.5);
+
+                const emptyStat = () => ({
+                    minX: Infinity, maxX: -Infinity,
+                    minY: Infinity, maxY: -Infinity,
+                    minAbsZ: Infinity, maxAbsZ: -Infinity,
+                    count: 0
+                });
+                const stats = { FL: emptyStat(), FR: emptyStat(), RL: emptyStat(), RR: emptyStat() };
+
+                const addPoint = (s, x, y, z) => {
+                    if (x < s.minX) s.minX = x;
+                    if (x > s.maxX) s.maxX = x;
+                    if (y < s.minY) s.minY = y;
+                    if (y > s.maxY) s.maxY = y;
+                    const az = Math.abs(z);
+                    if (az < s.minAbsZ) s.minAbsZ = az;
+                    if (az > s.maxAbsZ) s.maxAbsZ = az;
+                    s.count++;
+                };
+
+                // 1) Medida exacta de cuadrantes cuando el modelo separa las 4 ruedas
+                Object.keys(wheelQuads).forEach((qk) => {
+                    const meshes = wheelQuads[qk];
+                    if (!meshes || meshes.length === 0) return;
+                    const qb = new THREE.Box3();
+                    meshes.forEach((m) => qb.expandByObject(m));
+                    if (qb.isEmpty()) return;
+                    const qs = qb.getSize(new THREE.Vector3());
+                    if (qs.y > 0.22 && Math.max(qs.x, qs.y, qs.z) < 1.30) {
+                        const s = stats[qk];
+                        s.minX = qb.min.x; s.maxX = qb.max.x;
+                        s.minY = qb.min.y; s.maxY = qb.max.y;
+                        const z1 = Math.abs(qb.min.z), z2 = Math.abs(qb.max.z);
+                        s.minAbsZ = Math.min(z1, z2);
+                        s.maxAbsZ = Math.max(z1, z2);
+                        s.count = 1;
+                    }
+                });
+
+                const hasSeparated = (stats.FL.count || stats.FR.count) && (stats.RL.count || stats.RR.count);
+
+                // 2) Escaneo de vértices si el GLB fusiona todas las ruedas en una sola malla (ej. van.glb)
+                if (!hasSeparated && model) {
+                    const wheelRegex = /(wheel|tire|tyre|rim|rueda|llanta)/i;
+                    const exclRegex = /(steering|volante|caliper|calliper|brake|pinza|fender|arch|liner|spoiler|bumper|door|interior|seat|mirror)/i;
+                    const v = new THREE.Vector3();
+
+                    const scanMeshes = (strictWheelName, maxHeightY) => {
+                        model.traverse((node) => {
+                            if (!node.isMesh || !node.visible || !node.geometry || !node.geometry.attributes.position) return;
+                            const nm = (node.name || '').toLowerCase();
+                            if (exclRegex.test(nm)) return;
+                            if (strictWheelName) {
+                                const mats = Array.isArray(node.material) ? node.material : [node.material];
+                                const mNames = mats.map(m => (m && m.name) ? m.name.toLowerCase() : '').join(' ');
+                                if (!wheelRegex.test(nm + ' ' + mNames)) return;
+                            }
+                            node.updateWorldMatrix(true, false);
+                            const pos = node.geometry.attributes.position;
+                            const step = Math.max(1, Math.floor(pos.count / 6000));
+                            for (let i = 0; i < pos.count; i += step) {
+                                v.fromBufferAttribute(pos, i).applyMatrix4(node.matrixWorld);
+                                if (v.y > maxHeightY || Math.abs(v.x) < 0.35 || Math.abs(v.z) < halfW * 0.42) continue;
+                                const qk = (v.x >= 0 ? 'F' : 'R') + (v.z >= 0 ? 'R' : 'L');
+                                addPoint(stats[qk], v.x, v.y, v.z);
+                            }
+                        });
+                    };
+
+                    scanMeshes(true, finalBox.min.y + 0.92);
+                    const hasNamed = (stats.FL.count || stats.FR.count) && (stats.RL.count || stats.RR.count);
+                    if (!hasNamed) {
+                        scanMeshes(false, finalBox.min.y + 0.22);
+                    }
+                }
+
+                const summarizeAxle = (leftStat, rightStat, defaultX) => {
+                    const valid = [leftStat, rightStat].filter((s) => s.count > 0 && isFinite(s.minX) && isFinite(s.maxX));
+                    if (valid.length === 0) {
+                        return { x: defaultX, z: halfW - 0.16, r: 0.34, bottomY: finalBox.min.y, w: 0.25 };
+                    }
+                    const xs = valid.map((s) => (s.minX + s.maxX) * 0.5);
+                    const zs = valid.map((s) => (s.minAbsZ + s.maxAbsZ) * 0.5);
+                    const rs = valid.map((s) => Math.max(0.25, Math.min(0.46, (s.maxY - s.minY) * 0.5)));
+                    const ys = valid.map((s) => s.minY);
+                    const ws = valid.map((s) => Math.max(0.18, Math.min(0.36, s.maxAbsZ - s.minAbsZ)));
+                    const avg = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length;
+                    const rx = avg(xs);
+                    const rawZ = avg(zs);
+                    return {
+                        x: Math.max(-halfL * 0.85, Math.min(halfL * 0.85, rx)),
+                        z: Math.max(0.62, Math.min(halfW - 0.08, rawZ)),
+                        r: avg(rs) > 0.24 ? avg(rs) : 0.34,
+                        bottomY: avg(ys),
+                        w: avg(ws)
+                    };
+                };
+
+                const f = summarizeAxle(stats.FL, stats.FR, halfL * 0.62);
+                const r = summarizeAxle(stats.RL, stats.RR, -halfL * 0.62);
+                return {
+                    frontX: f.x,
+                    rearX: r.x,
+                    frontZ: f.z,
+                    rearZ: r.z,
+                    frontRadius: f.r,
+                    rearRadius: r.r,
+                    frontBottomY: f.bottomY,
+                    rearBottomY: r.bottomY,
+                    tireWidth: (f.w + r.w) * 0.5,
+                    carLength: sz.x,
+                    carWidth: sz.z
+                };
             }
 
             createLoftGeometry(stations, rearDome = 0.05, frontDome = 0.07) {
@@ -5167,6 +5551,132 @@
                 return group;
             }
 
+            resolveDefaultModelSpec(profile, car) {
+                /**
+                 * Registro declarativo de modelos 3D locales (.glb en ./models/<clave>.glb + .glb.js).
+                 * Las reglas en `byPattern` se evalúan en orden de mayor especificidad a siluetas por marca.
+                 */
+                const DYNO_MODEL_REGISTRY = {
+                    byPattern: [
+                        // Audi
+                        { key: 'rs6',      match: /\b(rs\s*6|avant)\b/i },
+                        { key: 'rs3',      match: /\baudi\b.*\b(rs\s*3|s3|a3)\b/i },
+                        { key: 'q5',       match: /\baudi\b.*\b(q5|q3)\b/i },
+                        { key: 'a4',       match: /\baudi\b.*\b(a4|a5|s4|s5|a1)\b/i },
+                        // BMW
+                        { key: 'm4',       match: /\bbmw\b.*\b(m3|m4|f80|f82|g80|g82)\b/i },
+                        { key: 'm2',       match: /\bbmw\b.*\b(m2|f87|g87|m240|m140)\b/i },
+                        { key: 'm5',       match: /\bbmw\b.*\b(m5|520|530|540|f10|g30|f90)\b/i },
+                        { key: 'tiguan',   match: /\bbmw\b.*\b(x1|x3|x5)\b/i },
+                        { key: 'sedan',    match: /\bbmw\b.*\b(318|320|330|e90|f30|g20)\b/i },
+                        { key: 'hatch',    match: /\bbmw\b.*\b(116|118|120)\b/i },
+                        // Porsche
+                        { key: '911',      match: /\bporsche\b.*\b(911|carrera|gt3|turbo)\b/i },
+                        { key: 'sport',    match: /\bporsche\b.*\b(718|cayman|boxster)\b/i },
+                        { key: 'cayenne',  match: /\bporsche\b.*\b(cayenne|macan)\b/i },
+                        { key: 'panamera', match: /\bporsche\b.*\bpanamera\b/i },
+                        // Volkswagen
+                        { key: 'golfr',    match: /\bgolf\s*r\b/i },
+                        { key: 'polo',     match: /\bpolo\b/i },
+                        { key: 'scirocco', match: /\bscirocco\b/i },
+                        { key: 'tiguan',   match: /\btiguan\b/i },
+                        { key: 'sprinter', match: /\bcrafter\b/i },
+                        { key: 'van',      match: /\b(transporter|multivan|caddy)\b/i },
+                        { key: 'a4',       match: /\bpassat\b/i },
+                        { key: 'hatch',    match: /\bgolf\b/i },
+                        // CUPRA & SEAT
+                        { key: 'ibiza',    match: /\bibiza\b/i },
+                        { key: 'leon',     match: /\b(leon|le[oó]n)\b/i },
+                        { key: 'tiguan',   match: /\b(formentor|ateca|arona)\b/i },
+                        // Ford
+                        { key: 'focusrs',  match: /\bfocus\b/i },
+                        { key: 'fiestast', match: /\bfiesta\b/i },
+                        { key: 'mustang',  match: /\bmustang\b/i },
+                        { key: 'pickup',   match: /\b(ranger|f-?150|raptor)\b/i },
+                        { key: 'van',      match: /\btransit\b/i },
+                        { key: 'tiguan',   match: /\bkuga\b/i },
+                        // Mercedes-Benz
+                        { key: 'sprinter', match: /\bsprinter\b/i },
+                        { key: 'van',      match: /\b(vito|citan)\b/i },
+                        { key: 'a45',      match: /\b(a\s*45|a\s*180|a\s*200|a\s*220|w177|w176)\b/i },
+                        { key: 'c63',      match: /\b(c\s*63|c\s*200|c\s*220|e\s*220|cla|w205|w213)\b/i },
+                        // Nissan
+                        { key: 'gtr',      match: /\b(gt-?r|r35)\b/i },
+                        { key: 'qashqai',  match: /\b(qashqai|juke)\b/i },
+                        { key: 'pickup',   match: /\bnavara\b/i },
+                        { key: 'van',      match: /\b(nv300|primastar)\b/i },
+                        // Toyota
+                        { key: 'gryaris',  match: /\byaris\b/i },
+                        { key: 'gr86',     match: /\bgr\s*86\b/i },
+                        { key: 'supra',    match: /\bsupra\b/i },
+                        { key: 'pickup',   match: /\b(hilux|land\s*cruiser)\b/i },
+                        { key: 'van',      match: /\bproace\b/i },
+                        { key: 'qashqai',  match: /\brav4\b/i },
+                        { key: 'focusrs',  match: /\bcorolla\b/i },
+                        // Hyundai
+                        { key: 'i30n',     match: /\b(i30|i20)\b/i },
+                        { key: 'kona',     match: /\b(kona|tucson)\b/i },
+                        { key: 'van',      match: /\b(h-?1|staria)\b/i },
+                        // Kia
+                        { key: 'stinger',  match: /\b(stinger|proceed)\b/i },
+                        { key: 'i30n',     match: /\bceed\b/i },
+                        { key: 'kona',     match: /\b(sportage|stonic|sorento|carnival)\b/i },
+                        // Renault & Alpine
+                        { key: 'a110',     match: /\b(a110|alpine)\b/i },
+                        { key: 'megane',   match: /\b(megane|m[eé]gane)\b/i },
+                        { key: 'cliov6',   match: /\bclio\b/i },
+                        { key: 'duster',   match: /\bcaptur\b/i },
+                        { key: 'sprinter', match: /\bmaster\b/i },
+                        { key: 'van',      match: /\b(trafic|kangoo)\b/i },
+                        // Peugeot
+                        { key: 'p3008',    match: /\b(3008|2008|5008)\b/i },
+                        { key: 'ducato',   match: /\bboxer\b/i },
+                        { key: 'van',      match: /\b(partner|rifter)\b/i },
+                        { key: 'c4',       match: /\b(208|308)\b/i },
+                        // Citroën
+                        { key: 'c4',       match: /\b(c4|c3)\b/i },
+                        { key: 'ducato',   match: /\bjumper\b/i },
+                        { key: 'van',      match: /\bberlingo\b/i },
+                        { key: 'p3008',    match: /\bc5\s*aircross\b/i },
+                        // Opel
+                        { key: 'astra',    match: /\bastra\b/i },
+                        { key: 'polo',     match: /\bcorsa\b/i },
+                        { key: 'van',      match: /\b(vivaro|zafira|combo)\b/i },
+                        { key: 'sedan',    match: /\binsignia\b/i },
+                        // Fiat / Abarth
+                        { key: 'ducato',   match: /\bducato\b/i },
+                        { key: 'abarth',   match: /\b(abarth|595|695|panda|500(?!x))\b/i },
+                        { key: 'kona',     match: /\b500x\b/i },
+                        { key: 'van',      match: /\bdobl[oò]\b/i },
+                        { key: 'c4',       match: /\btipo\b/i },
+                        // Dacia
+                        { key: 'duster',   match: /\b(duster|sandero|jogger)\b/i },
+                        { key: 'van',      match: /\b(dokker|lodgy)\b/i }
+                    ],
+                    byBodyType: {
+                        hatch: 'hatch',
+                        sedan: 'sedan',
+                        sport: 'sport',
+                        suv: 'suv',
+                        van: 'van',
+                        pickup: 'pickup'
+                    },
+                    fallback: 'hatch'
+                };
+
+                const brand = (window.DynoSim && window.DynoSim.currentBrand) || '';
+                const carName = (car && (car.name || `${car.brand || ''} ${car.model || ''}`)) || '';
+                const searchLabel = `${brand} ${carName}`.trim();
+                const specific = searchLabel
+                    ? DYNO_MODEL_REGISTRY.byPattern.find((entry) => entry.match.test(searchLabel))
+                    : null;
+                const bodyType = (profile && profile.bodyType) || DYNO_MODEL_REGISTRY.fallback;
+                const key = (specific && specific.key)
+                    || DYNO_MODEL_REGISTRY.byBodyType[bodyType]
+                    || DYNO_MODEL_REGISTRY.fallback;
+                return { key, url: `./models/${key}.glb` };
+            }
+
             buildCar(profile, stageKey) {
                 if (!this.isWebGL || !this.carRoot) return;
                 const stageHex = stageKey === 'eco' ? 0x34c759 : stageKey === 'stage2' ? 0xd31a38 : 0x0a84ff;
@@ -5174,19 +5684,103 @@
                 if (this.underGlowLight) this.underGlowLight.color.setHex(stageHex);
 
                 if (this.customGLBUrl) {
-                    this.loadCustomGLB(this.customGLBUrl, profile, stageKey);
+                    const targetKey = 'custom:' + this.customGLBUrl;
+                    if (this.activeModelKey === targetKey && this.chassisGroup && this.carRoot.children.length > 0) {
+                        this.fitDynoPit(this._lastAxleSpec, profile, stageKey);
+                        return;
+                    }
+                    this.loadCustomGLB(this.customGLBUrl, profile, stageKey, null, targetKey, true);
                     return;
                 }
-                this.buildProceduralCar(profile, stageKey);
+
+                const spec = this.resolveDefaultModelSpec(profile, window.DynoSim ? window.DynoSim.currentCar : null);
+                const targetKey = 'builtin:' + spec.key;
+                if (this.activeModelKey === targetKey && this.chassisGroup && this.carRoot.children.length > 0) {
+                    this.setLoadingIndicator(false);
+                    this.fitDynoPit(this._lastAxleSpec, profile, stageKey);
+                    return;
+                }
+                this.loadCustomGLB(spec.url, profile, stageKey, spec.key, targetKey, false);
             }
 
-            loadCustomGLB(url, profile, stageKey) {
-                if (!this.isWebGL || !this.carRoot) return;
-                if (typeof THREE.GLTFLoader !== 'function') {
-                    this.buildProceduralCar(profile, stageKey);
-                    if (typeof showToast === 'function') showToast(t('toast_glb_error'), 'error');
-                    return;
+            loadBuiltinGLBScript(bodyKey) {
+                if (this.glbScriptPromises.has(bodyKey)) return this.glbScriptPromises.get(bodyKey);
+                const p = new Promise((resolve, reject) => {
+                    if (window.__MECA_GLB_B64 && window.__MECA_GLB_B64[bodyKey]) {
+                        resolve(window.__MECA_GLB_B64[bodyKey]);
+                        return;
+                    }
+                    const s = document.createElement('script');
+                    s.src = `./models/${bodyKey}.glb.js`;
+                    s.async = true;
+                    s.onload = () => {
+                        const b64 = window.__MECA_GLB_B64 && window.__MECA_GLB_B64[bodyKey];
+                        if (b64) resolve(b64);
+                        else reject(new Error('Missing GLB payload for ' + bodyKey));
+                    };
+                    s.onerror = () => reject(new Error('Offline wrapper unavailable for ' + bodyKey));
+                    document.head.appendChild(s);
+                }).catch((err) => {
+                    this.glbScriptPromises.delete(bodyKey);
+                    throw err;
+                });
+                this.glbScriptPromises.set(bodyKey, p);
+                return p;
+            }
+
+            async fetchModelBuffer(url, builtinKey) {
+                const cacheKey = builtinKey ? `builtin:${builtinKey}` : url;
+                if (builtinKey && this.glbBufferCache.has(cacheKey)) {
+                    return this.glbBufferCache.get(cacheKey);
                 }
+                let buf;
+                if (builtinKey && window.location.protocol === 'file:') {
+                    const b64 = await this.loadBuiltinGLBScript(builtinKey);
+                    const bin = atob(b64);
+                    const bytes = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                    buf = bytes.buffer;
+                    if (window.__MECA_GLB_B64) delete window.__MECA_GLB_B64[builtinKey];
+                } else {
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    buf = await res.arrayBuffer();
+                }
+                if (builtinKey) this.glbBufferCache.set(cacheKey, buf);
+                return buf;
+            }
+
+            createFlameEmitter(radius = 0.045) {
+                const coreFlameMat = new THREE.MeshBasicMaterial({
+                    color: 0xbfe9ff,
+                    transparent: true,
+                    opacity: 0.95,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                const outerFlameMat = new THREE.MeshBasicMaterial({
+                    color: 0xff6b00,
+                    transparent: true,
+                    opacity: 0.72,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                const flameGroup = new THREE.Group();
+                const outerGeo = new THREE.ConeGeometry(radius * 0.92, 0.24, 12);
+                outerGeo.rotateZ(Math.PI / 2);
+                outerGeo.translate(-0.12, 0, 0);
+                const innerGeo = new THREE.ConeGeometry(radius * 0.52, 0.15, 10);
+                innerGeo.rotateZ(Math.PI / 2);
+                innerGeo.translate(-0.075, 0, 0);
+                flameGroup.add(new THREE.Mesh(outerGeo, outerFlameMat));
+                flameGroup.add(new THREE.Mesh(innerGeo, coreFlameMat));
+                flameGroup.visible = false;
+                this.exhaustFlames.push(flameGroup);
+                return flameGroup;
+            }
+
+            ensureGLTFLoader() {
+                if (typeof THREE.GLTFLoader !== 'function') return null;
                 if (!this.gltfLoader) {
                     this.gltfLoader = new THREE.GLTFLoader();
                     if (typeof THREE.DRACOLoader === 'function') {
@@ -5195,128 +5789,426 @@
                         this.gltfLoader.setDRACOLoader(draco);
                     }
                 }
+                return this.gltfLoader;
+            }
+
+            applyLinearPaint(colorObj, hex) {
+                if (!colorObj) return;
+                colorObj.set(hex);
+                if (typeof colorObj.convertSRGBToLinear === 'function') colorObj.convertSRGBToLinear();
+            }
+
+            computeVisibleBox(root) {
+                root.updateMatrixWorld(true);
+                const total = new THREE.Box3();
+                const tmp = new THREE.Box3();
+                root.traverse((n) => {
+                    if (n.isMesh && n.visible) {
+                        tmp.setFromObject(n);
+                        if (!tmp.isEmpty()) total.union(tmp);
+                    }
+                });
+                return total.isEmpty() ? new THREE.Box3().setFromObject(root) : total;
+            }
+
+            mountLoadedGLTF(gltf, profile, stageKey, targetKey, isCustomOverride) {
+                if (!this.carRoot) return;
+                this.setLoadingIndicator(false);
+                while (this.carRoot.children.length > 0) this.carRoot.remove(this.carRoot.children[0]);
+                this.wheels = [];
+                this.exhaustFlames = [];
+                this.customPaintMats = [];
+                this.activeModelKey = targetKey;
+
+                const model = gltf.scene || (gltf.scenes && gltf.scenes[0]);
+                if (!model) {
+                    this.buildProceduralCar(profile, stageKey);
+                    return;
+                }
+                this.chassisGroup = new THREE.Group();
+                this.carRoot.add(this.chassisGroup);
+
+                const getHierarchyName = (node) => {
+                    const parts = [];
+                    let cur = node;
+                    while (cur && cur !== model) {
+                        const raw = cur.name || '';
+                        if (raw && !/(^sketchfab_model$|^rootnode$|^gltf_scenerootnode$|\.fbx$)/i.test(raw)) {
+                            parts.push(raw);
+                        }
+                        cur = cur.parent;
+                    }
+                    return parts.join(' ').toLowerCase();
+                };
+
+                // Ocultar planos de sombra/suelo incrustados (y mallas planas desproporcionadas) antes de medir el chasis
+                model.updateMatrixWorld(true);
+                const tmpBox = new THREE.Box3();
+                model.traverse((node) => {
+                    if (node.isLine || node.isLineSegments) {
+                        node.visible = false;
+                        return;
+                    }
+                    if (!node.isMesh) return;
+                    tmpBox.setFromObject(node);
+                    const ms = tmpBox.getSize(new THREE.Vector3());
+                    const flatQuad = ms.y < Math.max(ms.x, ms.z) * 0.03;
+                    const qName = ((node.name || '') + ' ' + ((node.parent && node.parent.name) || '')).toLowerCase();
+                    if (flatQuad && (
+                        /(shadow|ground|backdrop|stage[_ -]?floor)/i.test(qName)
+                        || (/(\bbase\b|plane\d*)/i.test(qName) && ms.x > 1.8 && ms.z > 1.8)
+                    )) {
+                        node.visible = false;
+                    }
+                });
+
+                // Alinear eje largo horizontal con +X
+                let box = this.computeVisibleBox(model);
+                const rawSz = box.getSize(new THREE.Vector3());
+                if (rawSz.z > rawSz.x * 1.05) {
+                    model.rotation.y = Math.PI / 2;
+                    model.updateMatrixWorld(true);
+                }
+
+                // Detectar frente (+X) vs trasera (-X) inspeccionando nodos y jerarquía de grupos padre
+                let frontX = 0, frontN = 0, rearX = 0, rearN = 0;
+                const centerVec = new THREE.Vector3();
+                model.traverse((node) => {
+                    if (!node.isMesh || !node.visible) return;
+                    const hint = ((node.name || '') + ' ' + getHierarchyName(node)).toLowerCase();
+                    if (/frontrear/i.test(hint)) return;
+                    if (/headlight|head_?light|grille|grill\b|hood|bonnet|bumperf|front[_ -]?(l|r)|wheelfl|wheelfr/i.test(hint)) {
+                        tmpBox.setFromObject(node).getCenter(centerVec);
+                        frontX += centerVec.x; frontN++;
+                    } else if (/taillight|tail_?light|rare_light|break_light|spoiler|trunk|boot|exhaust|bumperr|rear[_ -]?(l|r)|wheelrl|wheelrr/i.test(hint)) {
+                        tmpBox.setFromObject(node).getCenter(centerVec);
+                        rearX += centerVec.x; rearN++;
+                    }
+                });
+                if (frontN > 0 && rearN > 0 && (frontX / frontN) < (rearX / rearN)) {
+                    model.rotation.y += Math.PI;
+                    model.updateMatrixWorld(true);
+                }
+
+                // Escala automotriz real sobre el foso de rodillos (soportando exportaciones FBX en cm o m)
+                box = this.computeVisibleBox(model);
+                const normSz = box.getSize(new THREE.Vector3());
+                const bt = (profile && profile.bodyType) || 'hatch';
+                const targetLen = bt === 'hatch' ? 4.24 : (bt === 'suv' || bt === 'pickup') ? 4.46 : 4.38;
+                const scale = targetLen / Math.max(0.0001, normSz.x);
+                model.scale.multiplyScalar(scale);
+                model.updateMatrixWorld(true);
+
+                box = this.computeVisibleBox(model);
+                const center = box.getCenter(new THREE.Vector3());
+                model.position.x -= center.x;
+                model.position.z -= center.z;
+                model.position.y -= box.min.y - 0.025;
+                model.updateMatrixWorld(true);
+                this.chassisGroup.add(model);
+
+                const clonedPaintMap = new Map();
+                const sanitizedMatMap = new Map();
+                const wheelQuads = { FL: [], FR: [], RL: [], RR: [] };
+                const mergedWheelMeshes = [];
+                const unsprungCalipers = [];
+
+                model.traverse((node) => {
+                    if (!node.isMesh || !node.visible) return;
+                    const rawMats = Array.isArray(node.material) ? node.material : [node.material];
+                    if (rawMats.length > 0 && rawMats.every(m => m && /^edge_color/i.test(m.name || ''))) {
+                        node.visible = false;
+                        return;
+                    }
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+
+                    const nm = (node.name || '').toLowerCase();
+                    const pathName = getHierarchyName(node);
+                    const mats = rawMats;
+                    const matNames = mats.map(m => (m && m.name) ? m.name.toLowerCase() : '').join(' ');
+
+                    const mappedMats = mats.map((m) => {
+                        if (!m) return m;
+                        if (clonedPaintMap.has(m)) return clonedPaintMap.get(m);
+                        if (sanitizedMatMap.has(m)) return sanitizedMatMap.get(m);
+                        const mn = (m.name || '').toLowerCase();
+                        const isMatExcluded = /(trim|carbon|plastic|rubber|solidblack|interior|\bseats?\b|wheel|(?:^|[^a-z])rims?(?:$|[^a-z])|tire|tyre|tyer|glass|window|windshield|chrome|nickel|grille|grill|caliper|calliper|brake|disc|disk|badge|plate|mirror|chassis|engine|exhaust|light|lamp)/i.test(mn);
+                        const isNodeTrim = /(trim|plastic|rubber|interior|\bseats?\b|wheel|(?:^|[^a-z])rims?(?:$|[^a-z])|tire|tyre|tyer|glass|window|light|lamp|grille|caliper|calliper|brake|badge|plate|mirror|chassis|engine)/i.test(nm) && !/m_carpaint_max/i.test(nm);
+                        const isPaint = !isMatExcluded && (
+                            /((car|f-150|body)[_-]?paint|painttnr_material|paint_material|m_carpaint|^paint$|^carpaint$|pmat_porsche_cayenne|lacquer|carrocer|varnish|car_livrea|carro_pintura|ceramicblue|^body$|^primary$|kebulas|dummy_material|mat_.*_base_\d+$)/i.test(mn)
+                            || (targetKey === 'builtin:stinger' && /^material_(5|6|7|12|15|17)$/i.test(mn))
+                            || (/^material$/i.test(mn) && /lod_a_(body|door|frontbumper|rearbumper|hood|boot|fender)/i.test(nm + ' ' + pathName))
+                            || (!isNodeTrim && /(m_carpaint|car[_-]?paint|paint_material|paint[_-]?metal|car[_-]?body)/i.test(nm))
+                        );
+                        if (isPaint && m.color) {
+                            const cm = m.clone();
+                            this.applyLinearPaint(cm.color, this.currentColor);
+                            if (typeof cm.roughness === 'number' && !cm.map) cm.roughness = Math.max(cm.roughness, 0.20);
+                            clonedPaintMap.set(m, cm);
+                            this.customPaintMats.push(cm);
+                            return cm;
+                        }
+                        // Corregir bordes/molduras/neumáticos exportados sin textura en blanco/gris claro por defecto
+                        const isBrightUntextured = !m.map && m.color && (!m.transparent || m.opacity > 0.85)
+                            && m.color.r > 0.55 && m.color.g > 0.55 && m.color.b > 0.55;
+                        const keepBright = /(chrome|nickel|silver|alum|alloy|\brim\b|mirror|zerkalo|light|lamp|flight|beam|badge|plate|\bwhite\b|rearlights|f-150_rim|carro_roda)/i.test(mn)
+                            && !/(black|plasti?c|plast|rubber|windowinside|window_?surround|carbon|int_vetro)/i.test(mn);
+                        if ((isBrightUntextured && !keepBright) || (targetKey === 'builtin:stinger' && /^rollcage$/i.test(mn))) {
+                            let targetHex = null, tMetal = null, tRough = null;
+                            if (/windowinside|window_?surround|int_vetro/i.test(mn)) {
+                                targetHex = 0x111318; tMetal = 0.08; tRough = 0.72;
+                            } else if (/(tire|tyre|tyer|rubber|battistrada|pneu|goma|luntai)/i.test(mn)) {
+                                targetHex = 0x15171c; tMetal = 0.04; tRough = 0.86;
+                            } else if (/(^black(\.\d+)?$|chblack|plasti?c|plast(\.\d+)?|trim|carbon|ext_carbon|suede|dash|\bseats?\b|interiorcolou?r|lbucket|grelhas|undercarriage|chassis|moulding|seal|gasket|rollcage)/i.test(mn)) {
+                                targetHex = 0x181b21; tMetal = 0.12; tRough = Math.max(m.roughness || 0.5, 0.58);
+                            } else if (/(caliper|calliper)/i.test(mn)) {
+                                targetHex = 0x3b4250; tMetal = 0.55; tRough = 0.38;
+                            }
+                            if (targetHex !== null) {
+                                const sm = m.clone();
+                                this.applyLinearPaint(sm.color, targetHex);
+                                sm.metalness = tMetal;
+                                sm.roughness = tRough;
+                                sanitizedMatMap.set(m, sm);
+                                return sm;
+                            }
+                        }
+                        return m;
+                    });
+                    node.material = Array.isArray(node.material) ? mappedMats : mappedMats[0];
+
+                    const parentName = ((node.parent && node.parent.name) || '').toLowerCase();
+                    if (/(caliper|calliper|pinza)/i.test(nm + ' ' + matNames + ' ' + parentName)
+                        && !/(3dwheel|wheel|tire|tyre|tyer|rim|brake\s?disc|brakedisc|disk|disc)/i.test(nm + ' ' + matNames)) {
+                        tmpBox.setFromObject(node);
+                        const ms = tmpBox.getSize(new THREE.Vector3());
+                        if (Math.max(ms.x, ms.y, ms.z) < 1.25 && Math.max(ms.x, ms.y, ms.z) > 0.02) {
+                            unsprungCalipers.push(node);
+                        }
+                        return;
+                    }
+
+                    const isWheelLeaf = /((^|\b|_| )(w[1-4](?!\d)|3dwheel|wheel|tire|tyre|tyer|rueda|llanta|rim|pneu|roda|ratas|luntai|gum\d*|tyre_grip|side_?wal|sidewall|inner_rim|alloy|disk|disc)|(fiesta|audi)w[1-4]|phong\d*wheels?\d*)/i.test(pathName + ' ' + nm + ' ' + matNames)
+                        && !/(steer|cockpit|horn|driving[_ -]?wheel|volante|fender|arch|liner|spoiler|bumper|door|interior|\bseats?\b|seat[_-]?belt|body_loda|license|plate|mirror)/i.test(nm + ' ' + pathName + ' ' + matNames)
+                        && !/(caliper|calliper|pinza)/i.test(nm + ' ' + matNames);
+
+                    if (isWheelLeaf) {
+                        tmpBox.setFromObject(node);
+                        const ms = tmpBox.getSize(new THREE.Vector3());
+                        const maxD = Math.max(ms.x, ms.y, ms.z);
+                        if (maxD > 0.03 && maxD < 1.25) {
+                            tmpBox.getCenter(centerVec);
+                            const qk = (centerVec.x >= 0 ? 'F' : 'R') + (centerVec.z >= 0 ? 'R' : 'L');
+                            wheelQuads[qk].push(node);
+                        } else if (maxD >= 1.25) {
+                            mergedWheelMeshes.push(node);
+                        }
+                    }
+                });
+
+                // Dividir mallas multi-rueda combinadas (ej. van.glb) en cuadrantes FL/FR/RL/RR reales
+                mergedWheelMeshes.forEach((node) => {
+                    const geom = node.geometry;
+                    if (!geom || !geom.attributes || !geom.attributes.position) return;
+                    if (Array.isArray(node.material) && geom.groups && geom.groups.length > 1) return;
+                    node.updateWorldMatrix(true, false);
+                    const pos = geom.attributes.position;
+                    const idx = geom.index;
+                    const triCount = idx ? Math.floor(idx.count / 3) : Math.floor(pos.count / 3);
+                    if (triCount < 4) return;
+
+                    const buckets = { FL: [], FR: [], RL: [], RR: [] };
+                    const va = new THREE.Vector3(), vb = new THREE.Vector3(), vc = new THREE.Vector3();
+                    for (let t = 0; t < triCount; t++) {
+                        const i0 = idx ? idx.getX(t * 3) : t * 3;
+                        const i1 = idx ? idx.getX(t * 3 + 1) : t * 3 + 1;
+                        const i2 = idx ? idx.getX(t * 3 + 2) : t * 3 + 2;
+                        va.fromBufferAttribute(pos, i0).applyMatrix4(node.matrixWorld);
+                        vb.fromBufferAttribute(pos, i1).applyMatrix4(node.matrixWorld);
+                        vc.fromBufferAttribute(pos, i2).applyMatrix4(node.matrixWorld);
+                        const cx = (va.x + vb.x + vc.x) / 3;
+                        const cz = (va.z + vb.z + vc.z) / 3;
+                        if (Math.abs(cx) < 0.30 || Math.abs(cz) < 0.35) continue;
+                        const qk = (cx >= 0 ? 'F' : 'R') + (cz >= 0 ? 'R' : 'L');
+                        buckets[qk].push(i0, i1, i2);
+                    }
+
+                    const activeQuads = Object.keys(buckets).filter((k) => buckets[k].length > 0);
+                    if (activeQuads.length < 2) return;
+
+                    const parent = node.parent || model;
+                    const attrNames = Object.keys(geom.attributes);
+                    activeQuads.forEach((qk) => {
+                        const rawTris = buckets[qk];
+                        const oldToNew = new Int32Array(pos.count);
+                        oldToNew.fill(-1);
+                        const usedVerts = [];
+                        const newIdxArr = new Array(rawTris.length);
+                        for (let k = 0; k < rawTris.length; k++) {
+                            const ov = rawTris[k];
+                            let nv = oldToNew[ov];
+                            if (nv === -1) {
+                                nv = usedVerts.length;
+                                oldToNew[ov] = nv;
+                                usedVerts.push(ov);
+                            }
+                            newIdxArr[k] = nv;
+                        }
+
+                        const subGeom = new THREE.BufferGeometry();
+                        attrNames.forEach((aName) => {
+                            const srcAttr = geom.attributes[aName];
+                            if (!srcAttr || !srcAttr.array) return;
+                            const itemSz = srcAttr.itemSize;
+                            const ArrCtor = srcAttr.array.constructor;
+                            const dstArr = new ArrCtor(usedVerts.length * itemSz);
+                            for (let vIdx = 0; vIdx < usedVerts.length; vIdx++) {
+                                const srcBase = usedVerts[vIdx] * itemSz;
+                                const dstBase = vIdx * itemSz;
+                                for (let c = 0; c < itemSz; c++) {
+                                    dstArr[dstBase + c] = srcAttr.array[srcBase + c];
+                                }
+                            }
+                            subGeom.setAttribute(aName, new THREE.BufferAttribute(dstArr, itemSz, srcAttr.normalized));
+                        });
+
+                        const TypedIdx = usedVerts.length > 65535 ? Uint32Array : Uint16Array;
+                        subGeom.setIndex(new THREE.BufferAttribute(new TypedIdx(newIdxArr), 1));
+                        subGeom.computeBoundingBox();
+                        subGeom.computeBoundingSphere();
+
+                        const subMesh = new THREE.Mesh(subGeom, node.material);
+                        subMesh.name = `${node.name || 'wheel'}_${qk}`;
+                        subMesh.position.copy(node.position);
+                        subMesh.quaternion.copy(node.quaternion);
+                        subMesh.scale.copy(node.scale);
+                        subMesh.castShadow = true;
+                        subMesh.receiveShadow = true;
+                        parent.add(subMesh);
+                        subMesh.updateWorldMatrix(true, false);
+                        wheelQuads[qk].push(subMesh);
+                    });
+
+                    node.visible = false;
+                });
+
+                // Anclar pinzas de freno individuales al conjunto no suspendido (sin rotación)
+                unsprungCalipers.forEach((calNode) => {
+                    this.carRoot.attach(calNode);
+                });
+
+                // Anclar las 4 ruedas directamente en carRoot (suelo/rodillos) para que solo bascule la carrocería suspendida
+                Object.entries(wheelQuads).forEach(([qk, meshes]) => {
+                    if (meshes.length === 0) return;
+                    const qBox = new THREE.Box3();
+                    meshes.forEach((m) => qBox.expandByObject(m));
+                    const qs = qBox.getSize(new THREE.Vector3());
+                    if (Math.max(qs.x, qs.y, qs.z) < 1.30 && qs.y > 0.22) {
+                        const qc = qBox.getCenter(new THREE.Vector3());
+                        const pivot = new THREE.Group();
+                        pivot.userData.axle = qk.startsWith('F') ? 'front' : 'rear';
+                        this.carRoot.add(pivot);
+                        pivot.position.copy(this.carRoot.worldToLocal(qc.clone()));
+                        meshes.forEach((m) => pivot.attach(m));
+                        this.wheels.push(pivot);
+                    }
+                });
+
+                // Emisores de llamas Stage 2 detrás del difusor (-X) sobre todo el conjunto visible (carRoot)
+                const finalBox = this.computeVisibleBox(this.carRoot);
+                const finalSz = finalBox.getSize(new THREE.Vector3());
+                const axleSpec = this.measureAxleSpec(model, wheelQuads, finalBox);
+                this.fitDynoPit(axleSpec, profile, stageKey);
+                [-finalSz.z * 0.24, finalSz.z * 0.24].forEach((ez) => {
+                    const fg = this.createFlameEmitter(0.044);
+                    fg.position.set(finalBox.min.x + 0.02, finalBox.min.y + finalSz.y * 0.14, ez);
+                    this.chassisGroup.add(fg);
+                });
+                this.exhaustLight = new THREE.PointLight(0xff5500, 0, 4.0);
+                this.exhaustLight.position.set(finalBox.min.x - 0.28, finalBox.min.y + finalSz.y * 0.20, 0);
+                this.chassisGroup.add(this.exhaustLight);
+
+                const cEl = document.getElementById('dyno-3d-canvas');
+                if (cEl) {
+                    cEl.setAttribute('data-diag', JSON.stringify({
+                        key: targetKey,
+                        drivetrain: (profile && profile.drivetrain) || 'awd',
+                        frontX: Number(axleSpec.frontX.toFixed(2)),
+                        rearX: Number(axleSpec.rearX.toFixed(2)),
+                        trackZ: [Number(axleSpec.frontZ.toFixed(2)), Number(axleSpec.rearZ.toFixed(2))],
+                        wheelR: [Number(axleSpec.frontRadius.toFixed(2)), Number(axleSpec.rearRadius.toFixed(2))],
+                        rollerCount: this.rollers.length,
+                        size: finalSz.toArray().map(v => Number(v.toFixed(2))),
+                        min: finalBox.min.toArray().map(v => Number(v.toFixed(2))),
+                        max: finalBox.max.toArray().map(v => Number(v.toFixed(2))),
+                        wheels: this.wheels.length,
+                        paintMats: this.customPaintMats.length
+                    }));
+                }
+
+                const resetBtn = document.getElementById('btn-glb-reset');
+                if (resetBtn) resetBtn.classList.toggle('visible', Boolean(isCustomOverride));
+                if (typeof showToast === 'function' && this._glbToastPending) {
+                    this._glbToastPending = false;
+                    showToast(t('toast_glb_loaded'), 'success');
+                }
+            }
+
+            loadCustomGLB(url, profile, stageKey, builtinKey = null, targetKey = url, isCustomOverride = true) {
+                if (!this.isWebGL || !this.carRoot) return;
+                const loader = this.ensureGLTFLoader();
+                if (!loader) {
+                    this.setLoadingIndicator(false);
+                    this.buildProceduralCar(profile, stageKey);
+                    if (isCustomOverride && typeof showToast === 'function') showToast(t('toast_glb_error'), 'error');
+                    return;
+                }
                 const loadSeq = (this._glbSeq = (this._glbSeq || 0) + 1);
-                this.gltfLoader.load(
+                this.setLoadingIndicator(true);
+
+                const handleError = () => {
+                    if (loadSeq !== this._glbSeq) return;
+                    this.setLoadingIndicator(false);
+                    if (isCustomOverride) this.customGLBUrl = null;
+                    this._glbToastPending = false;
+                    const resetBtn = document.getElementById('btn-glb-reset');
+                    if (resetBtn) resetBtn.classList.remove('visible');
+                    this.buildProceduralCar(profile, stageKey);
+                    if (isCustomOverride && typeof showToast === 'function') showToast(t('toast_glb_error'), 'error');
+                };
+
+                if (builtinKey) {
+                    this.fetchModelBuffer(url, builtinKey).then((buf) => {
+                        if (loadSeq !== this._glbSeq || !this.carRoot) return;
+                        loader.parse(
+                            buf,
+                            '',
+                            (gltf) => {
+                                if (loadSeq !== this._glbSeq || !this.carRoot) return;
+                                this.mountLoadedGLTF(gltf, profile, stageKey, targetKey, isCustomOverride);
+                            },
+                            handleError
+                        );
+                    }).catch(handleError);
+                    return;
+                }
+
+                loader.load(
                     url,
                     (gltf) => {
                         if (loadSeq !== this._glbSeq || !this.carRoot) return;
-                        while (this.carRoot.children.length > 0) this.carRoot.remove(this.carRoot.children[0]);
-                        this.wheels = [];
-                        this.exhaustFlames = [];
-                        this.customPaintMats = [];
-
-                        const model = gltf.scene || gltf.scenes[0];
-                        this.chassisGroup = new THREE.Group();
-                        this.carRoot.add(this.chassisGroup);
-
-                        // Normalizar orientación (+X delantero) y escala automotriz (~4.35m)
-                        model.updateMatrixWorld(true);
-                        let box = new THREE.Box3().setFromObject(model);
-                        const sz = box.getSize(new THREE.Vector3());
-                        if (sz.z > sz.x * 1.1) {
-                            model.rotation.y = Math.PI / 2;
-                            model.updateMatrixWorld(true);
-                            box = new THREE.Box3().setFromObject(model);
-                        }
-                        const normSz = box.getSize(new THREE.Vector3());
-                        const scale = 4.35 / Math.max(0.25, normSz.x);
-                        model.scale.multiplyScalar(scale);
-                        model.updateMatrixWorld(true);
-
-                        box = new THREE.Box3().setFromObject(model);
-                        const center = box.getCenter(new THREE.Vector3());
-                        model.position.x -= center.x;
-                        model.position.z -= center.z;
-                        model.position.y -= box.min.y - 0.025;
-                        model.updateMatrixWorld(true);
-                        this.chassisGroup.add(model);
-
-                        const wheelNodes = [];
-                        model.traverse((node) => {
-                            if (node.isMesh) {
-                                node.castShadow = true;
-                                node.receiveShadow = true;
-                                const nm = (node.name || '').toLowerCase();
-                                const mats = Array.isArray(node.material) ? node.material : [node.material];
-                                const clonedMats = mats.map((m) => {
-                                    if (!m) return m;
-                                    const mn = (m.name || '').toLowerCase();
-                                    const isPaintName = /(car[_-]?paint|body[_-]?paint|^paint|chassis|exterior|lacquer|carrocer)/i.test(mn)
-                                        || (/car[_-]?body|paint|exterior/i.test(nm) && !/glass|window|windshield|tire|tyre|wheel|rim|chrome|brake|light|lamp|interior|seat|grille/i.test(mn + ' ' + nm));
-                                    if (isPaintName && m.color) {
-                                        const cm = m.clone();
-                                        cm.color.set(this.currentColor);
-                                        this.customPaintMats.push(cm);
-                                        return cm;
-                                    }
-                                    return m;
-                                });
-                                node.material = Array.isArray(node.material) ? clonedMats : clonedMats[0];
-                            }
-                            const nName = (node.name || '').toLowerCase();
-                            if (/(wheel|tire|tyre|rueda|llanta)[_ -]?(fl|fr|rl|rr|0|1|2|3|left|right|front|rear)?/i.test(nName)) {
-                                // Evitar añadir hijos si un padre ya fue registrado como conjunto de rueda
-                                let anc = node.parent;
-                                let nested = false;
-                                while (anc) {
-                                    if (wheelNodes.includes(anc)) { nested = true; break; }
-                                    anc = anc.parent;
-                                }
-                                if (!nested) {
-                                    const wb = new THREE.Box3().setFromObject(node);
-                                    const ws = wb.getSize(new THREE.Vector3());
-                                    if (Math.max(ws.x, ws.y, ws.z) < 1.15 && Math.min(ws.x, ws.y, ws.z) > 0.08) {
-                                        wheelNodes.push(node);
-                                    }
-                                }
-                            }
-                        });
-
-                        // Envolver cada rueda en pivote centrado en su cubo para giro sin excentricidad
-                        wheelNodes.forEach((wn) => {
-                            const wb = new THREE.Box3().setFromObject(wn);
-                            const wc = wb.getCenter(new THREE.Vector3());
-                            const pivot = new THREE.Group();
-                            this.chassisGroup.add(pivot);
-                            pivot.position.copy(this.chassisGroup.worldToLocal(wc.clone()));
-                            pivot.attach(wn);
-                            this.wheels.push(pivot);
-                        });
-
-                        // Llamas Stage 2 ancladas al difusor trasero del modelo importado
-                        const finalBox = new THREE.Box3().setFromObject(this.chassisGroup);
-                        const finalSz = finalBox.getSize(new THREE.Vector3());
-                        const pipeMat = new THREE.MeshStandardMaterial({ color: 0xdbe4ee, metalness: 0.95, roughness: 0.14 });
-                        [-finalSz.z * 0.25, finalSz.z * 0.25].forEach((ez) => {
-                            const fl = this.createHollowExhaust(0.044, 0.08, pipeMat);
-                            fl.position.set(finalBox.min.x - 0.02, finalBox.min.y + finalSz.y * 0.15, ez);
-                            this.chassisGroup.add(fl);
-                        });
-                        this.exhaustLight = new THREE.PointLight(0xff5500, 0, 4.0);
-                        this.exhaustLight.position.set(finalBox.min.x - 0.28, finalBox.min.y + finalSz.y * 0.20, 0);
-                        this.chassisGroup.add(this.exhaustLight);
-
-                        const resetBtn = document.getElementById('btn-glb-reset');
-                        if (resetBtn) resetBtn.classList.add('visible');
-                        if (typeof showToast === 'function' && this._glbToastPending) {
-                            this._glbToastPending = false;
-                            showToast(t('toast_glb_loaded'), 'success');
-                        }
+                        this.mountLoadedGLTF(gltf, profile, stageKey, targetKey, isCustomOverride);
                     },
                     undefined,
-                    () => {
-                        this.customGLBUrl = null;
-                        this._glbToastPending = false;
-                        const resetBtn = document.getElementById('btn-glb-reset');
-                        if (resetBtn) resetBtn.classList.remove('visible');
-                        this.buildProceduralCar(profile, stageKey);
-                        if (typeof showToast === 'function') showToast(t('toast_glb_error'), 'error');
-                    }
+                    handleError
                 );
             }
 
             buildProceduralCar(profile, stageKey) {
                 if (!this.isWebGL || !this.carRoot) return;
+                this.setLoadingIndicator(false);
+                this.activeModelKey = 'procedural:' + ((profile && profile.bodyType) || 'hatch');
                 while (this.carRoot.children.length > 0) this.carRoot.remove(this.carRoot.children[0]);
                 this.wheels = [];
                 this.exhaustFlames = [];
@@ -5686,9 +6578,24 @@
                         wheelAssembly.add(caliper);
 
                         this.carRoot.add(wheelAssembly);
+                        spinGroup.userData.axle = ax >= 0 ? 'front' : 'rear';
                         this.wheels.push(spinGroup);
                     });
                 });
+
+                this.fitDynoPit({
+                    frontX: d.wb / 2,
+                    rearX: -d.wb / 2,
+                    frontZ: halfW - 0.055,
+                    rearZ: halfW - 0.055,
+                    frontRadius: wheelRadius,
+                    rearRadius: wheelRadius,
+                    frontBottomY: 0.035,
+                    rearBottomY: 0.035,
+                    tireWidth: 0.22,
+                    carLength: d.len,
+                    carWidth: d.w
+                }, profile, stageKey);
 
                 const resetBtn = document.getElementById('btn-glb-reset');
                 if (resetBtn) resetBtn.classList.remove('visible');
@@ -5696,17 +6603,24 @@
 
             setPaint(hex) {
                 this.currentColor = hex;
-                if (this.paintMat) this.paintMat.color.set(hex);
+                if (this.paintMat) this.applyLinearPaint(this.paintMat.color, hex);
                 if (this.customPaintMats && this.customPaintMats.length > 0) {
-                    this.customPaintMats.forEach((m) => { if (m && m.color) m.color.set(hex); });
+                    this.customPaintMats.forEach((m) => { if (m && m.color) this.applyLinearPaint(m.color, hex); });
                 }
+            }
+
+            setDemoAutoRotate(enabled) {
+                if (!this.controls) return;
+                this.controls.autoRotate = Boolean(enabled);
+                this.controls.autoRotateSpeed = 0.85;
             }
 
             setCameraPreset(preset) {
                 if (!this.isWebGL || !this.camera || !this.controls) return;
+                this.controls.autoRotate = false;
                 const presets = {
-                    threeQuarter: { pos: new THREE.Vector3(4.5, 2.05, 4.35), tgt: new THREE.Vector3(0, 0.65, 0) },
-                    side: { pos: new THREE.Vector3(0.0, 1.35, 5.6), tgt: new THREE.Vector3(0, 0.65, 0) },
+                    threeQuarter: { pos: new THREE.Vector3(5.1, 2.28, 4.85), tgt: new THREE.Vector3(0, 0.72, 0) },
+                    side: { pos: new THREE.Vector3(0.0, 1.4, 6.0), tgt: new THREE.Vector3(0, 0.72, 0) },
                     exhaust: { pos: new THREE.Vector3(-4.65, 1.38, 3.05), tgt: new THREE.Vector3(-0.6, 0.60, 0) },
                     top: { pos: new THREE.Vector3(0.2, 6.2, 1.2), tgt: new THREE.Vector3(0, 0.4, 0) }
                 };
@@ -5744,19 +6658,27 @@
                 }
                 if (this.controls) this.controls.update();
 
-                // Rotación de ruedas y rodillos proporcional al RPM
+                // Rotación de ruedas motrices y rodillos proporcional al RPM
                 const wheelOmega = (rpm / Math.max(1000, maxRpm)) * 42 * dt;
-                this.wheels.forEach(w => { w.rotation.z -= wheelOmega; });
+                const dtType = (profile && profile.drivetrain) || 'awd';
+                this.wheels.forEach((w) => {
+                    const ax = w.userData && w.userData.axle;
+                    if (!ax || dtType === 'awd' || (dtType === 'fwd' && ax === 'front') || (dtType === 'rwd' && ax === 'rear')) {
+                        w.rotation.z -= wheelOmega;
+                    }
+                });
                 this.rollers.forEach(r => { r.rotation.z += wheelOmega * 1.4; });
 
-                // Reacción de chasis (torque roll + microvibración motor + squat trasero al acelerar)
+                // Reacción realista de suspensión en la carrocería suspendida (ruedas siempre firmes sobre los rodillos)
                 if (this.chassisGroup) {
-                    const vib = rpm > 100 ? Math.sin(performance.now() * 0.045) * (0.002 + throttle * 0.003) : 0;
-                    const pitchTarget = throttle * 0.022;
-                    const rollTarget = throttle * 0.015 * Math.sin(performance.now() * 0.009);
+                    const hasPlantedWheels = this.wheels.length >= 2;
+                    const vib = rpm > 100 ? Math.sin(performance.now() * 0.045) * (0.0018 + throttle * 0.0028) : 0;
+                    const pitchTarget = hasPlantedWheels ? throttle * 0.017 : 0;
+                    const squatY = hasPlantedWheels ? -throttle * 0.008 : 0;
+                    const rollTarget = throttle * (0.011 + 0.005 * Math.sin(performance.now() * 0.009));
                     this.chassisGroup.rotation.z += (pitchTarget - this.chassisGroup.rotation.z) * Math.min(1, dt * 8);
-                    this.chassisGroup.rotation.x += (rollTarget - this.chassisGroup.rotation.x) * Math.min(1, dt * 6);
-                    this.chassisGroup.position.y = vib;
+                    this.chassisGroup.rotation.x += (rollTarget - this.chassisGroup.rotation.x) * Math.min(1, dt * 7);
+                    this.chassisGroup.position.y = squatY + vib;
                 }
 
                 // Llamas breves y realistas en Stage 2 / corte
@@ -5859,6 +6781,7 @@
             audio: new MecaAudioEngine(),
             dyno3D: new MecaDyno3D(),
             active: false,
+            isDemo: false,
             shopVisible: true,
             ignition: false,
             pulling: false,
@@ -5991,17 +6914,29 @@
                     this.pedalHeld = false;
                     this.spaceHeld = false;
                     this.audio.update(false, 0, 0, 0, this.profile || {}, this.currentStage, false);
-                } else if (this.active) {
-                    setTimeout(() => this.dyno3D.resize(), 60);
-                    this.startLoop();
+                } else {
+                    const syncView = () => {
+                        this.dyno3D.resize();
+                        if (this.curves && this.profile) {
+                            this.drawDynoChart();
+                            this.drawTachometer();
+                        }
+                    };
+                    requestAnimationFrame(syncView);
+                    setTimeout(syncView, 120);
+                    setTimeout(syncView, 360);
+                    if (this.active) this.startLoop();
                 }
             },
 
-            loadVehicle(brand, car, stageKey) {
+            loadVehicle(brand, car, stageKey, opts = {}) {
                 this.wireEvents();
                 this.dyno3D.ensureInit();
 
+                const isDemo = Boolean(opts && opts.isDemo);
+                const demoChanged = this.isDemo !== isDemo;
                 const isNewCar = !this.currentCar || this.currentCar.name !== car.name;
+                this.isDemo = isDemo;
                 this.currentBrand = brand;
                 this.currentCar = car;
                 this.currentStage = stageKey;
@@ -6026,6 +6961,11 @@
 
                 this.dyno3D.buildCar(this.profile, stageKey);
                 this.dyno3D.resize();
+                if (!isDemo) {
+                    this.dyno3D.setDemoAutoRotate(false);
+                } else if (isNewCar || demoChanged) {
+                    this.dyno3D.setDemoAutoRotate(true);
+                }
 
                 this.refreshLabels();
                 this.drawDynoChart();
@@ -6171,9 +7111,18 @@
                 const pullIco = document.getElementById('btn-dyno-pull-icon');
                 const pullTxt = document.getElementById('btn-dyno-pull-text');
 
-                if (dot) dot.classList.toggle('running', this.ignition);
+                if (dot) {
+                    dot.classList.toggle('running', this.ignition);
+                    dot.classList.toggle('demo', this.isDemo && !this.ignition);
+                }
                 if (txt) {
-                    txt.textContent = this.pulling ? t('dyno_status_pull') : this.ignition ? t('dyno_status_running') : t('dyno_status_standby');
+                    txt.textContent = this.pulling
+                        ? t('dyno_status_pull')
+                        : this.ignition
+                            ? t('dyno_status_running')
+                            : this.isDemo
+                                ? t('dyno_status_demo')
+                                : t('dyno_status_standby');
                 }
                 if (ignBtn) ignBtn.classList.toggle('active', this.ignition);
                 if (ignTxt) ignTxt.textContent = this.ignition ? t('dyno_btn_stop') : t('dyno_btn_start');
